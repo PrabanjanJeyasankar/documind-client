@@ -4,7 +4,7 @@ import { Mic, Pause, Play, UploadCloud } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
-import FileUpload from '@/components/file-upload'
+import FileUpload from '@/components/audio-file-upload'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
@@ -16,7 +16,11 @@ interface AIVoiceProps {
 
 type RecorderState = 'idle' | 'recording' | 'paused'
 
-export default function AI_Voice({ onRecordingComplete, showTopGradient, onUploadSuccess }: AIVoiceProps) {
+export default function AudioRecordUploadInput({
+  onRecordingComplete,
+  showTopGradient,
+  onUploadSuccess,
+}: AIVoiceProps) {
   const [state, setState] = useState<RecorderState>('idle')
   const [time, setTime] = useState<number>(0)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
@@ -99,13 +103,6 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient, onUploa
   const handleMicClick = () => {
     if (state === 'idle') startRecording()
     else stopRecording()
-  }
-
-  const handleUploadSuccess = (file: File) => {
-    setUploadModalOpen(false)
-    const audioBlob = new Blob([file], { type: file.type })
-    if (onUploadSuccess) onUploadSuccess(audioBlob)
-    toast.success('Audio file uploaded!')
   }
 
   const handleUploadError = (error: { message: string }) => {
@@ -239,8 +236,11 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient, onUploa
             <h3 className='text-lg font-semibold mb-4'>Upload Audio File</h3>
             <FileUpload
               acceptedFileTypes={['audio/*']}
-              maxFileSize={10 * 1024 * 1024} // 10MB max
-              onUploadSuccess={handleUploadSuccess}
+              maxFileSize={20 * 1024 * 1024}
+              onUploadSuccess={(file) => {
+                setUploadModalOpen(false)
+                if (onRecordingComplete) onRecordingComplete(file)
+              }}
               onUploadError={handleUploadError}
             />
             <div className='mt-4 flex justify-end'>

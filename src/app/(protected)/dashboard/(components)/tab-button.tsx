@@ -27,7 +27,7 @@ export function TabButton({ item, isSelected, onClick, onKeyDown, buttonRef }: T
       onClick={onClick}
       onKeyDown={onKeyDown}
       className={cn(
-        'relative flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 min-w-0 flex-1',
+        'relative flex items-center justify-center gap-2 rounded-lg py-2 min-w-0 flex-1',
         'text-sm font-medium transition-all duration-200 font-sans',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
 

@@ -5,12 +5,12 @@ import React, { FC, useEffect, useRef, useState, UIEvent } from 'react'
 import { usePatientVoiceRecordings, useSendVoiceRecording } from '@/hooks/use-conversation'
 import { usePatientMessagesStore } from '@/store/patient-message-store'
 import ClassicLoader from '@/components/classic-loader'
-import AI_Voice from '@/components/ai-voice'
+import AudioRecordUploadInput from '@/components/audio-record-upload-input'
 import { toast } from 'sonner'
 import { VoiceMessageBubble } from '@/components/voice-message-bubble'
 import type { VoiceRecording } from '@/types'
 import { Button } from '@/components/ui/button'
-import { ArrowDown } from 'lucide-react'
+import { AlertCircle, ArrowDown } from 'lucide-react'
 import { groupVoiceByDate } from '@/utils/voice-conversation'
 import { formatDateHeader } from '@/utils/chat-conversation'
 import { TranscriptList } from '@/components/transcript-list'
@@ -23,12 +23,17 @@ interface VoicePanelProps {
 
 export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
   const { data: serverRecs, isLoading } = usePatientVoiceRecordings(patientId)
+
   const setStore = usePatientMessagesStore((s) => s.setVoiceRecordings)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const storeRecs = usePatientMessagesStore((s) => s.voiceRecordings[patientId]) ?? []
+  useEffect(() => {
+    console.log('serverRecs:', serverRecs)
+    console.log('storeRecs:', storeRecs)
+  }, [serverRecs, storeRecs])
 
   // disable until the latest "sent" note has a transcript
-  const awaiting = storeRecs.some((r) => r.status === 'sent' && !r.fullTranscript)
+  // const awaiting = storeRecs.some((r) => r.status === 'sent' && !r.fullTranscript)
   const storageKey = `pending-voice-${patientId}`
 
   // refs and state for scroll behavior
@@ -42,11 +47,22 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
 
   useEffect(() => {
     if (!serverRecs) return
+
     setStore(patientId, (prev) => {
       const existing = prev ?? []
-      const ids = new Set(existing.map((r) => r.id))
-      const toAdd = serverRecs.filter((r) => !ids.has(r.id))
-      return [...existing, ...toAdd].sort((a, b) => +new Date(a.timestamp) - +new Date(b.timestamp))
+      const serverIds = new Set(serverRecs.map((r) => r.id))
+
+      // Filter out any optimistic recordings that are now saved on server (matching by id)
+      // or if you want, also remove optimistic records with the same timestamp + duration or url,
+      // depending on your matching criteria.
+
+      // For simplicity, remove optimistic records with same id as server records
+      const filtered = existing.filter((r) => !serverIds.has(r.id))
+
+      // Merge server recordings replacing optimistic ones
+      return [...filtered, ...serverRecs].sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      )
     })
   }, [serverRecs, patientId, setStore])
 
@@ -216,10 +232,16 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
                     </div>
                   ) : rec.errorCode === 'no_speech_detected' ? (
                     <div className='flex flex-col items-start px-4'>
-                      <div className='text-[10px] font-mono text-muted-foreground uppercase mb-1'>Transcript</div>
-                      <div className='bg-muted text-sm text-muted-foreground font-sans p-3 rounded-2xl rounded-tl-none w-fit max-w-[80%] italic'>
-                        We couldn&apos;t detect any clear speech in this voice note — it happens! Feel free to try again
-                        when ready.
+                      <div className='text-[10px] font-mono text-destructive uppercase mb-1'>No Voice Detected !</div>
+                      <div
+                        className='flex items-center gap-2 font-sans p-3 rounded-2xl rounded-tl-none w-fit max-w-[80%] italic text-destructive bg-destructive/10'
+                        role='alert'
+                        aria-live='polite'>
+                        <AlertCircle className='w-5 h-5 flex-shrink-0 text-destructive' />
+                        <span>
+                          We couldn&apos;t detect any clear speech in this voice note — it happens! Feel free to try
+                          again when ready.
+                        </span>
                       </div>
                     </div>
                   ) : null}
@@ -242,10 +264,9 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
         </Button>
       )}
 
-      <div
-        className='flex justify-center pb-4'
-        style={{ pointerEvents: awaiting ? 'none' : undefined, opacity: awaiting ? 0.6 : 1 }}>
-        <AI_Voice onRecordingComplete={handleRecordingComplete} showTopGradient={isScrolledUp} />
+      <div className='flex justify-center pb-4'>
+        {/* style={{ pointerEvents: awaiting ? 'none' : undefined, opacity: awaiting ? 0.6 : 1 }}> */}
+        <AudioRecordUploadInput onRecordingComplete={handleRecordingComplete} showTopGradient={isScrolledUp} />
       </div>
     </div>
   )

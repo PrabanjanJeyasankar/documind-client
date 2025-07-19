@@ -30,7 +30,7 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
   return (
     <Card className='shadow-none bg-sidebar-accent border-none font-sans overflow-hidden !pt-2'>
       {/* Header with Back button and Patient Avatar/Name */}
-      <div className='flex items-center justify-between px-4 py-2'>
+      <div className='flex flex-col items-start justify-between gap-6 px-4 py-2'>
         <Button
           variant='outline'
           size='sm'
@@ -58,182 +58,196 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
         </div>
       </div>
 
-      <CardContent className='px-6 pt-4 pb-6'>
-        {/* Contact Section */}
-        <section className='space-y-3'>
-          <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2'>
-            <User className='w-4 h-4' />
-            Contact
-          </h2>
+      <CardContent className='px-6 pb-6'>
+        {/* Enhanced Bento Grid Layout */}
+        <div className='grid grid-cols-12 gap-4 auto-rows-auto'>
+          {/* Contact Information - Main Section */}
+          <div className='col-span-12 lg:col-span-8'>
+            <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2 mb-4'>
+              <User className='w-4 h-4' />
+              Contact Information
+            </h2>
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 ml-6'>
-            <div className='flex items-center gap-2 bg-sidebar-accent-foreground/5 rounded p-3'>
-              <Cake className='w-5 h-5 text-muted-foreground' />
-              <div>
-                <div className='text-xs text-muted-foreground'>DOB</div>
-                <div className='text-sm text-sidebar-accent-foreground'>
-                  {patient.dateOfBirth ? formatDate(patient.dateOfBirth) : 'No DOB'}
-                  {age !== null && <span className='text-xs text-muted-foreground ml-1'>(Age: {age})</span>}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+              {/* DOB & Age - Featured Card */}
+              <div className='md:col-span-2 flex items-center gap-4 bg-sidebar-accent-foreground/5 rounded-lg p-4 border border-sidebar-accent-foreground/10'>
+                <div className='w-12 h-12 rounded-full bg-sidebar-accent-foreground/10 flex items-center justify-center'>
+                  <Cake className='w-6 h-6 text-sidebar-accent-foreground/70' />
+                </div>
+                <div className='flex-1'>
+                  <div className='text-xs text-muted-foreground uppercase tracking-wide'>Date of Birth</div>
+                  <div className='text-lg font-semibold text-sidebar-accent-foreground'>
+                    {patient.dateOfBirth ? formatDate(patient.dateOfBirth) : 'No DOB'}
+                  </div>
+                  {age !== null && <div className='text-sm text-muted-foreground'>Age: {age} years old</div>}
                 </div>
               </div>
-            </div>
 
-            <div className='flex items-center gap-2 bg-sidebar-accent-foreground/5 rounded p-3'>
-              <Mail className='w-5 h-5 text-muted-foreground' />
-              <div>
-                <div className='text-xs text-muted-foreground'>Email</div>
-                {patient.contactEmail ? (
-                  <a
-                    href={`mailto:${patient.contactEmail}`}
-                    className='text-sm text-sidebar-accent-foreground hover:underline block truncate max-w-xs'>
-                    {patient.contactEmail}
-                  </a>
-                ) : (
-                  <div className='text-sm text-muted-foreground'>No email</div>
-                )}
-              </div>
-            </div>
-
-            <div className='flex items-center gap-2 bg-sidebar-accent-foreground/5 rounded p-3'>
-              <Phone className='w-5 h-5 text-muted-foreground' />
-              <div>
-                <div className='text-xs text-muted-foreground'>Phone</div>
-                {patient.contactPhone ? (
-                  <a
-                    href={`tel:${patient.contactPhone}`}
-                    className='text-sm text-sidebar-accent-foreground hover:underline'>
-                    {patient.contactPhone}
-                  </a>
-                ) : (
-                  <div className='text-sm text-muted-foreground'>No phone</div>
-                )}
-              </div>
-            </div>
-
-            <div className='flex items-center gap-2 bg-sidebar-accent-foreground/5 rounded p-3'>
-              <Home className='w-5 h-5 text-muted-foreground' />
-              <div>
-                <div className='text-xs text-muted-foreground'>Address</div>
-                <div className='text-sm text-sidebar-accent-foreground'>
-                  {patient.address || <span className='text-muted-foreground'>No address</span>}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Medical Section */}
-        <section className='space-y-3 mt-6'>
-          <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2'>
-            <Heart className='w-4 h-4' />
-            Medical
-          </h2>
-
-          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 ml-6'>
-            <div className='flex items-center gap-2 bg-sidebar-accent-foreground/5 rounded p-3'>
-              <Droplet className='w-5 h-5 text-muted-foreground' />
-              <div>
-                <div className='text-xs text-muted-foreground'>Blood Type</div>
-                <div className='text-sm text-sidebar-accent-foreground'>
-                  {patient.bloodType ? (
-                    <span className='font-medium'>{patient.bloodType}</span>
+              {/* Email */}
+              <div className='md:col-span-2 flex items-start gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+                <Mail className='w-5 h-5 text-muted-foreground mt-0.5' />
+                <div className='flex-1 min-w-0'>
+                  <div className='text-xs text-muted-foreground uppercase tracking-wide mb-1'>Email</div>
+                  {patient.contactEmail ? (
+                    <a
+                      href={`mailto:${patient.contactEmail}`}
+                      className='text-sm text-sidebar-accent-foreground hover:underline block truncate'>
+                      {patient.contactEmail}
+                    </a>
                   ) : (
-                    <span className='text-muted-foreground'>Unknown</span>
+                    <div className='text-sm text-muted-foreground'>No email provided</div>
                   )}
                 </div>
               </div>
-            </div>
 
-            {patient.gender && (
-              <div className='flex items-center gap-2 bg-sidebar-accent-foreground/5 rounded p-3'>
-                <Info className='w-5 h-5 text-muted-foreground' />
-                <div>
-                  <div className='text-xs text-muted-foreground'>Gender</div>
-                  <div className='text-sm text-sidebar-accent-foreground font-medium'>{patient.gender}</div>
+              {/* Phone */}
+              <div className=' md:col-span-2 flex items-start gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+                <Phone className='w-5 h-5 text-muted-foreground mt-0.5' />
+                <div className='flex-1'>
+                  <div className='text-xs text-muted-foreground uppercase tracking-wide mb-1'>Phone</div>
+                  {patient.contactPhone ? (
+                    <a
+                      href={`tel:${patient.contactPhone}`}
+                      className='text-sm text-sidebar-accent-foreground hover:underline'>
+                      {patient.contactPhone}
+                    </a>
+                  ) : (
+                    <div className='text-sm text-muted-foreground'>No phone provided</div>
+                  )}
                 </div>
               </div>
-            )}
+
+              {/* Address - Full Width */}
+              <div className='md:col-span-2 flex items-start gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+                <Home className='w-5 h-5 text-muted-foreground mt-0.5' />
+                <div className='flex-1'>
+                  <div className='text-xs text-muted-foreground uppercase tracking-wide mb-1'>Address</div>
+                  <div className='text-sm text-sidebar-accent-foreground'>
+                    {patient.address || <span className='text-muted-foreground'>No address provided</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </section>
 
-        {/* Conditions Section */}
-        {((patient.allergies && patient.allergies.length > 0) ||
-          (patient.chronicConditions && patient.chronicConditions.length > 0)) && (
-          <section className='space-y-3 mt-6'>
-            <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2'>
-              <Shield className='w-4 h-4' />
-              Conditions
+          {/* Medical Information - Sidebar */}
+          <div className='col-span-12 lg:col-span-4'>
+            <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2 mb-4'>
+              <Heart className='w-4 h-4' />
+              Medical
             </h2>
 
-            <div className='ml-6'>
-              {patient.allergies && patient.allergies.length > 0 && (
-                <div className='mb-4'>
-                  <div className='text-sm font-semibold mb-2'>Allergies</div>
-                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2'>
-                    {patient.allergies.map((allergy, i) => (
-                      <span
-                        key={i}
-                        className='text-xs bg-red-50 text-red-700 px-2 py-1 rounded-full border border-red-200'>
-                        {allergy}
-                      </span>
-                    ))}
+            <div className='space-y-3'>
+              {/* Blood Type */}
+              <div className='flex items-center gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+                <Droplet className='w-5 h-5 text-muted-foreground' />
+                <div>
+                  <div className='text-xs text-muted-foreground uppercase tracking-wide'>Blood Type</div>
+                  <div className='text-sm text-sidebar-accent-foreground'>
+                    {patient.bloodType ? (
+                      <span className='font-medium'>{patient.bloodType}</span>
+                    ) : (
+                      <span className='text-muted-foreground'>Unknown</span>
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
 
-              {patient.chronicConditions && patient.chronicConditions.length > 0 && (
-                <div>
-                  <div className='text-sm font-semibold mb-2'>Chronic Conditions</div>
-                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2'>
-                    {patient.chronicConditions.map((condition, i) => (
-                      <span
-                        key={i}
-                        className='text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded-full border border-orange-200'>
-                        {condition}
-                      </span>
-                    ))}
+              {/* Gender */}
+              {patient.gender && (
+                <div className='flex items-center gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+                  <Info className='w-5 h-5 text-muted-foreground' />
+                  <div>
+                    <div className='text-xs text-muted-foreground uppercase tracking-wide'>Gender</div>
+                    <div className='text-sm text-sidebar-accent-foreground font-medium'>{patient.gender}</div>
                   </div>
                 </div>
               )}
             </div>
-          </section>
-        )}
+          </div>
 
-        {/* Additional Section */}
-        {((patient.medicalTags && patient.medicalTags.length > 0) || patient.notes) && (
-          <section className='space-y-3 mt-6'>
-            <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2'>
-              <Tag className='w-4 h-4' />
-              Additional
-            </h2>
+          {/* Conditions - Full Width Section */}
+          {((patient.allergies && patient.allergies.length > 0) ||
+            (patient.chronicConditions && patient.chronicConditions.length > 0)) && (
+            <div className='col-span-12'>
+              <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2 mb-4'>
+                <Shield className='w-4 h-4' />
+                Medical Conditions
+              </h2>
 
-            <div className='ml-6'>
-              {patient.medicalTags && patient.medicalTags.length > 0 && (
-                <div className='mb-4'>
-                  <div className='text-sm font-semibold mb-2'>Tags</div>
-                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2'>
-                    {patient.medicalTags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className='text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-200'>
-                        {tag}
-                      </span>
-                    ))}
+              <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                {patient.allergies && patient.allergies.length > 0 && (
+                  <div className='bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+                    <div className='text-sm font-semibold mb-3'>Allergies</div>
+                    <div className='flex flex-wrap gap-2'>
+                      {patient.allergies.map((allergy, i) => (
+                        <span
+                          key={i}
+                          className='text-xs bg-red-50 text-red-700 px-2 py-1 rounded-full border border-red-200'>
+                          {allergy}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {patient.notes && (
-                <div>
-                  <div className='text-sm font-semibold mb-2'>Notes</div>
-                  <div className='text-sm text-muted-foreground bg-sidebar-accent-foreground/5 p-3 rounded-lg'>
-                    {patient.notes}
+                {patient.chronicConditions && patient.chronicConditions.length > 0 && (
+                  <div className='bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+                    <div className='text-sm font-semibold mb-3'>Chronic Conditions</div>
+                    <div className='flex flex-wrap gap-2'>
+                      {patient.chronicConditions.map((condition, i) => (
+                        <span
+                          key={i}
+                          className='text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded-full border border-orange-200'>
+                          {condition}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </section>
-        )}
+          )}
+
+          {/* Additional Information - Full Width */}
+          {((patient.medicalTags && patient.medicalTags.length > 0) || patient.notes) && (
+            <div className='col-span-12'>
+              <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2 mb-4'>
+                <Tag className='w-4 h-4' />
+                Additional Information
+              </h2>
+
+              <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
+                {/* Tags */}
+                {patient.medicalTags && patient.medicalTags.length > 0 && (
+                  <div className='lg:col-span-1 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+                    <div className='text-sm font-semibold mb-3'>Tags</div>
+                    <div className='flex flex-wrap gap-2'>
+                      {patient.medicalTags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className='text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-200'>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes */}
+                {patient.notes && (
+                  <div
+                    className={`${
+                      patient.medicalTags && patient.medicalTags.length > 0 ? 'lg:col-span-2' : 'lg:col-span-3'
+                    } bg-sidebar-accent-foreground/5 rounded-lg p-4`}>
+                    <div className='text-sm font-semibold mb-3'>Notes</div>
+                    <div className='text-sm text-muted-foreground'>{patient.notes}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   )

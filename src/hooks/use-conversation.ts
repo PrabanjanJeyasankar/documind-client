@@ -97,7 +97,12 @@ export function useSendPatientChat(patientId: string) {
 export function usePatientVoiceRecordings(patientId: string) {
   return useQuery<VoiceRecording[]>({
     queryKey: ['patientVoice', patientId],
-    queryFn: () => fetchVoiceRecordings(patientId),
+    queryFn: async () => {
+      console.log('Fetching voice recordings for patientId:', patientId)
+      const data = await fetchVoiceRecordings(patientId)
+      console.log('Fetched voice recordings:', data)
+      return data
+    },
     enabled: Boolean(patientId),
     staleTime: 0,
     refetchOnWindowFocus: true,
@@ -127,15 +132,39 @@ export function useSendVoiceRecording(patientId: string) {
       await client.cancelQueries({ queryKey: ['patientVoice', patientId] })
       const previous = client.getQueryData<VoiceRecording[]>(['patientVoice', patientId]) ?? []
       const blobUrl = URL.createObjectURL(audio)
-      const optimistic: VoiceRecording = {
-        id,
-        url: blobUrl,
-        timestamp,
-        duration,
-        status: 'pending',
-        file: audio,
+
+      // Check if an item with the same id already exists
+      const existingIndex = previous.findIndex((r) => r.id === id)
+
+      let newList: VoiceRecording[]
+      if (existingIndex !== -1) {
+        // If it exists, update status to pending and keep the rest
+        newList = previous.map((r) =>
+          r.id === id
+            ? {
+                ...r,
+                status: 'pending',
+                file: audio,
+                url: r.url || blobUrl, // keep existing URL or use new one
+                timestamp,
+                duration,
+              }
+            : r
+        )
+      } else {
+        // Add new optimistic item
+        const optimistic: VoiceRecording = {
+          id,
+          url: blobUrl,
+          timestamp,
+          duration,
+          status: 'pending',
+          file: audio,
+        }
+        newList = [...previous, optimistic]
       }
-      client.setQueryData<VoiceRecording[]>(['patientVoice', patientId], [...previous, optimistic])
+
+      client.setQueryData<VoiceRecording[]>(['patientVoice', patientId], newList)
       return { previous, optimisticId: id }
     },
 

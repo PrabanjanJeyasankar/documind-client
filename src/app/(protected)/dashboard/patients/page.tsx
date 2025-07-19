@@ -32,7 +32,7 @@ export default function PatientsPage() {
   }
 
   return (
-    <div className='flex flex-col font-sans'>
+    <div className='flex flex-col font-sans min-h-screen'>
       <div className='flex items-center justify-between mb-6'>
         <h1 className='text-2xl font-bold'>Patients</h1>
         {!showForm && (
@@ -41,13 +41,17 @@ export default function PatientsPage() {
           </Button>
         )}
       </div>
+
       {showForm ? (
-        <PatientForm
-          doctorId={doctor?.id ?? ''}
-          onCancel={() => setShowForm(false)}
-          onCreated={handlePatientCreated}
-          saving={isPending}
-        />
+        // Add this wrapper div with flex and centering styles
+        <div className='flex justify-center items-center flex-grow'>
+          <PatientForm
+            doctorId={doctor?.id ?? ''}
+            onCancel={() => setShowForm(false)}
+            onCreated={handlePatientCreated}
+            saving={isPending}
+          />
+        </div>
       ) : isLoading ? (
         <div className='flex justify-center items-center h-48'>
           <ClassicLoader size='md' className='w-8 h-8' />

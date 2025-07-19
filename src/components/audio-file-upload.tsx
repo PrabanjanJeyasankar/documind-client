@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, type DragEvent, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { UploadCloud, File as FileIcon } from 'lucide-react'
+import { UploadCloud } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type FileStatus = 'idle' | 'dragging' | 'uploading' | 'error'
@@ -19,7 +19,6 @@ interface FileUploadProps {
   maxFileSize?: number
   currentFile?: File | null
   onFileRemove?: () => void
-  /** Duration in milliseconds for the upload simulation. Defaults to 2000ms (2s), 0 for no simulation */
   uploadDelay?: number
   validateFile?: (file: File) => FileError | null
   className?: string
@@ -51,9 +50,11 @@ const UploadIllustration = () => (
         cx='50'
         cy='50'
         r='45'
-        className='stroke-gray-200 dark:stroke-gray-700'
         strokeWidth='2'
-        strokeDasharray='4 4'>
+        strokeDasharray='4 4'
+        style={{
+          stroke: 'var(--color-muted)',
+        }}>
         <animateTransform
           attributeName='transform'
           type='rotate'
@@ -66,8 +67,11 @@ const UploadIllustration = () => (
 
       <path
         d='M30 35H70C75 35 75 40 75 40V65C75 70 70 70 70 70H30C25 70 25 65 25 65V40C25 35 30 35 30 35Z'
-        className='fill-blue-100 dark:fill-blue-900/30 stroke-blue-500 dark:stroke-blue-400'
-        strokeWidth='2'>
+        strokeWidth='2'
+        style={{
+          fill: 'var(--color-accent)',
+          stroke: 'var(--color-primary)',
+        }}>
         <animate
           attributeName='d'
           dur='2s'
@@ -81,9 +85,11 @@ const UploadIllustration = () => (
 
       <path
         d='M30 35C30 35 35 35 40 35C45 35 45 30 50 30C55 30 55 35 60 35C65 35 70 35 70 35'
-        className='stroke-blue-500 dark:stroke-blue-400'
         strokeWidth='2'
         fill='none'
+        style={{
+          stroke: 'var(--color-primary)',
+        }}
       />
 
       <g className='transform translate-y-2'>
@@ -92,18 +98,18 @@ const UploadIllustration = () => (
           y1='45'
           x2='50'
           y2='60'
-          className='stroke-blue-500 dark:stroke-blue-400'
           strokeWidth='2'
-          strokeLinecap='round'>
+          strokeLinecap='round'
+          style={{ stroke: 'var(--color-primary)' }}>
           <animate attributeName='y2' values='60;55;60' dur='2s' repeatCount='indefinite' />
         </line>
         <polyline
           points='42,52 50,45 58,52'
-          className='stroke-blue-500 dark:stroke-blue-400'
           strokeWidth='2'
           strokeLinecap='round'
           strokeLinejoin='round'
-          fill='none'>
+          fill='none'
+          style={{ stroke: 'var(--color-primary)' }}>
           <animate
             attributeName='points'
             values='42,52 50,45 58,52;42,47 50,40 58,47;42,52 50,45 58,52'
@@ -142,54 +148,54 @@ const UploadingAnimation = ({ progress }: { progress: number }) => (
 
       <style>
         {`
-                    @keyframes rotate-cw {
-                        from { transform: rotate(0deg); }
-                        to { transform: rotate(360deg); }
-                    }
-                    @keyframes rotate-ccw {
-                        from { transform: rotate(360deg); }
-                        to { transform: rotate(0deg); }
-                    }
-                    .g-spin circle {
-                        transform-origin: 120px 120px;
-                    }
-                    .g-spin circle:nth-child(1) { animation: rotate-cw 8s linear infinite; }
-                    .g-spin circle:nth-child(2) { animation: rotate-ccw 8s linear infinite; }
-                    .g-spin circle:nth-child(3) { animation: rotate-cw 8s linear infinite; }
-                    .g-spin circle:nth-child(4) { animation: rotate-ccw 8s linear infinite; }
-                    .g-spin circle:nth-child(5) { animation: rotate-cw 8s linear infinite; }
-                    .g-spin circle:nth-child(6) { animation: rotate-ccw 8s linear infinite; }
-                    .g-spin circle:nth-child(7) { animation: rotate-cw 8s linear infinite; }
-                    .g-spin circle:nth-child(8) { animation: rotate-ccw 8s linear infinite; }
-                    .g-spin circle:nth-child(9) { animation: rotate-cw 8s linear infinite; }
-                    .g-spin circle:nth-child(10) { animation: rotate-ccw 8s linear infinite; }
-                    .g-spin circle:nth-child(11) { animation: rotate-cw 8s linear infinite; }
-                    .g-spin circle:nth-child(12) { animation: rotate-ccw 8s linear infinite; }
-                    .g-spin circle:nth-child(13) { animation: rotate-cw 8s linear infinite; }
-                    .g-spin circle:nth-child(14) { animation: rotate-ccw 8s linear infinite; }
+          @keyframes rotate-cw {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes rotate-ccw {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+          }
+          .g-spin circle {
+            transform-origin: 120px 120px;
+          }
+          .g-spin circle:nth-child(1) { animation: rotate-cw 8s linear infinite; }
+          .g-spin circle:nth-child(2) { animation: rotate-ccw 8s linear infinite; }
+          .g-spin circle:nth-child(3) { animation: rotate-cw 8s linear infinite; }
+          .g-spin circle:nth-child(4) { animation: rotate-ccw 8s linear infinite; }
+          .g-spin circle:nth-child(5) { animation: rotate-cw 8s linear infinite; }
+          .g-spin circle:nth-child(6) { animation: rotate-ccw 8s linear infinite; }
+          .g-spin circle:nth-child(7) { animation: rotate-cw 8s linear infinite; }
+          .g-spin circle:nth-child(8) { animation: rotate-ccw 8s linear infinite; }
+          .g-spin circle:nth-child(9) { animation: rotate-cw 8s linear infinite; }
+          .g-spin circle:nth-child(10) { animation: rotate-ccw 8s linear infinite; }
+          .g-spin circle:nth-child(11) { animation: rotate-cw 8s linear infinite; }
+          .g-spin circle:nth-child(12) { animation: rotate-ccw 8s linear infinite; }
+          .g-spin circle:nth-child(13) { animation: rotate-cw 8s linear infinite; }
+          .g-spin circle:nth-child(14) { animation: rotate-ccw 8s linear infinite; }
 
-                    .g-spin circle:nth-child(2n) { animation-delay: 0.2s; }
-                    .g-spin circle:nth-child(3n) { animation-delay: 0.3s; }
-                    .g-spin circle:nth-child(5n) { animation-delay: 0.5s; }
-                    .g-spin circle:nth-child(7n) { animation-delay: 0.7s; }
-                `}
+          .g-spin circle:nth-child(2n) { animation-delay: 0.2s; }
+          .g-spin circle:nth-child(3n) { animation-delay: 0.3s; }
+          .g-spin circle:nth-child(5n) { animation-delay: 0.5s; }
+          .g-spin circle:nth-child(7n) { animation-delay: 0.7s; }
+        `}
       </style>
 
       <g className='g-spin' strokeWidth='10' strokeDasharray='18% 40%' mask='url(#progress-mask)'>
-        <circle r='150' cx='120' cy='120' stroke='#FF2E7E' opacity='0.95' />
-        <circle r='140' cx='120' cy='120' stroke='#FFD600' opacity='0.95' />
-        <circle r='130' cx='120' cy='120' stroke='#00E5FF' opacity='0.95' />
-        <circle r='120' cx='120' cy='120' stroke='#FF3D71' opacity='0.95' />
-        <circle r='110' cx='120' cy='120' stroke='#4ADE80' opacity='0.95' />
-        <circle r='100' cx='120' cy='120' stroke='#2196F3' opacity='0.95' />
-        <circle r='90' cx='120' cy='120' stroke='#FFA726' opacity='0.95' />
-        <circle r='80' cx='120' cy='120' stroke='#FF1493' opacity='0.95' />
-        <circle r='70' cx='120' cy='120' stroke='#FFEB3B' opacity='0.95' />
-        <circle r='60' cx='120' cy='120' stroke='#00BCD4' opacity='0.95' />
-        <circle r='50' cx='120' cy='120' stroke='#FF4081' opacity='0.95' />
-        <circle r='40' cx='120' cy='120' stroke='#76FF03' opacity='0.95' />
-        <circle r='30' cx='120' cy='120' stroke='#448AFF' opacity='0.95' />
-        <circle r='20' cx='120' cy='120' stroke='#FF3D00' opacity='0.95' />
+        <circle r='150' cx='120' cy='120' stroke='var(--color-primary)' opacity='0.95' />
+        <circle r='140' cx='120' cy='120' stroke='var(--color-accent)' opacity='0.95' />
+        <circle r='130' cx='120' cy='120' stroke='var(--color-primary)' opacity='0.95' />
+        <circle r='120' cx='120' cy='120' stroke='var(--color-primary)' opacity='0.95' />
+        <circle r='110' cx='120' cy='120' stroke='var(--color-muted)' opacity='0.95' />
+        <circle r='100' cx='120' cy='120' stroke='var(--color-secondary)' opacity='0.95' />
+        <circle r='90' cx='120' cy='120' stroke='var(--color-sidebar-primary)' opacity='0.95' />
+        <circle r='80' cx='120' cy='120' stroke='var(--color-accent)' opacity='0.95' />
+        <circle r='70' cx='120' cy='120' stroke='var(--color-primary-foreground)' opacity='0.95' />
+        <circle r='60' cx='120' cy='120' stroke='var(--color-muted-foreground)' opacity='0.95' />
+        <circle r='50' cx='120' cy='120' stroke='var(--color-accent-foreground)' opacity='0.95' />
+        <circle r='40' cx='120' cy='120' stroke='var(--color-secondary-foreground)' opacity='0.95' />
+        <circle r='30' cx='120' cy='120' stroke='var(--color-sidebar-accent-foreground)' opacity='0.95' />
+        <circle r='20' cx='120' cy='120' stroke='var(--color-sidebar-accent)' opacity='0.95' />
       </g>
     </svg>
   </div>
@@ -303,10 +309,8 @@ export default function FileUpload({
     (selectedFile: File | null) => {
       if (!selectedFile) return
 
-      // Reset error state
       setError(null)
 
-      // Validate file
       const sizeError = validateFileSize(selectedFile)
       if (sizeError) {
         handleError(sizeError)
@@ -383,28 +387,100 @@ export default function FileUpload({
       className={cn('relative w-full max-w-sm mx-auto', className || '')}
       role='complementary'
       aria-label='File upload'>
-      <div className='group relative w-full rounded-xl bg-white dark:bg-black ring-1 ring-gray-200 dark:ring-white/10 p-0.5'>
-        <div className='absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent' />
+      <div
+        className='group relative w-full rounded-xl p-0.5'
+        style={{
+          backgroundColor: 'var(--color-card)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'inset 0 0 0 1px var(--color-border)',
+        }}>
+        <div
+          style={{
+            position: 'absolute',
+            insetInlineStart: 0,
+            insetInlineEnd: 0,
+            top: '-1px',
+            height: '1px',
+            width: '100%',
+            background: 'linear-gradient(to right, transparent, var(--color-accent) 50%, transparent)',
+          }}
+        />
 
-        <div className='relative w-full rounded-[10px] bg-gray-50/50 dark:bg-white/[0.02] p-1.5'>
+        <div className='relative w-full rounded-[10px] p-1.5' style={{ backgroundColor: 'var(--color-muted)' }}>
           <div
-            className={cn(
-              'relative mx-auto w-full overflow-hidden rounded-lg border border-gray-100 dark:border-white/[0.08] bg-white dark:bg-black/50',
-              error ? 'border-red-500/50' : ''
-            )}>
+            className={cn('relative mx-auto w-full overflow-hidden rounded-lg', error ? '' : '')}
+            style={{
+              border: `1px solid ${error ? 'var(--color-destructive)' : 'var(--color-border)'}`,
+              backgroundColor: 'var(--color-card)',
+            }}>
             <div
               className={cn(
                 'absolute inset-0 transition-opacity duration-300',
                 status === 'dragging' ? 'opacity-100' : 'opacity-0'
-              )}>
-              <div className='absolute inset-x-0 top-0 h-[20%] bg-gradient-to-b from-blue-500/10 to-transparent' />
-              <div className='absolute inset-x-0 bottom-0 h-[20%] bg-gradient-to-t from-blue-500/10 to-transparent' />
-              <div className='absolute inset-y-0 left-0 w-[20%] bg-gradient-to-r from-blue-500/10 to-transparent' />
-              <div className='absolute inset-y-0 right-0 w-[20%] bg-gradient-to-l from-blue-500/10 to-transparent' />
-              <div className='absolute inset-[20%] bg-blue-500/5 rounded-lg transition-all duration-300 animate-pulse' />
+              )}
+              style={{
+                backgroundColor: 'var(--color-accent)',
+                opacity: status === 'dragging' ? 0.2 : 0,
+                borderRadius: 'var(--radius-lg)',
+                animation: status === 'dragging' ? 'pulse 2s infinite' : undefined,
+              }}>
+              {/* Overlay gradients */}
+              <div
+                style={{
+                  position: 'absolute',
+                  insetInlineStart: 0,
+                  insetInlineEnd: 0,
+                  top: 0,
+                  height: '20%',
+                  background: 'linear-gradient(to bottom, var(--color-accent), transparent)',
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  insetInlineStart: 0,
+                  insetInlineEnd: 0,
+                  bottom: 0,
+                  height: '20%',
+                  background: 'linear-gradient(to top, var(--color-accent), transparent)',
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  insetBlockStart: 0,
+                  insetBlockEnd: 0,
+                  left: 0,
+                  width: '20%',
+                  background: 'linear-gradient(to right, var(--color-accent), transparent)',
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  insetBlockStart: 0,
+                  insetBlockEnd: 0,
+                  right: 0,
+                  width: '20%',
+                  background: 'linear-gradient(to left, var(--color-accent), transparent)',
+                }}
+              />
             </div>
 
-            <div className='absolute -right-4 -top-4 h-8 w-8 bg-gradient-to-br from-blue-500/20 to-transparent blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500' />
+            <div
+              style={{
+                position: 'absolute',
+                right: '-1rem',
+                top: '-1rem',
+                height: '2rem',
+                width: '2rem',
+                background: 'linear-gradient(to bottom right, var(--color-accent), transparent)',
+                filter: 'blur(0.5rem)',
+                opacity: 0,
+                transition: 'opacity 0.5s ease',
+              }}
+              className='group-hover:opacity-100'
+            />
 
             <div className='relative h-[240px]'>
               <AnimatePresence mode='wait'>
@@ -427,30 +503,39 @@ export default function FileUpload({
                       <UploadIllustration />
                     </div>
 
-                    <div className='text-center space-y-1.5 mb-4'>
-                      <h3 className='text-lg font-semibold text-gray-900 dark:text-white tracking-tight'>
+                    <div className='text-center space-y-1.5 mb-4' style={{ color: 'var(--color-muted-foreground)' }}>
+                      <h3 className='text-lg font-semibold tracking-tight' style={{ color: 'var(--color-foreground)' }}>
                         Drag and drop or
                       </h3>
-                      <p className='text-xs text-gray-500 dark:text-gray-400'>
+                      <p className='text-xs'>
                         {acceptedFileTypes?.length
                           ? `${acceptedFileTypes
                               .map((t) => t.split('/')[1])
                               .join(', ')
                               .toUpperCase()}`
                           : 'SVG, PNG, JPG or GIF'}{' '}
-                        {maxFileSize && `up to 20MB`}
+                        {maxFileSize && `up to ${formatBytes(maxFileSize)}`}
                       </p>
                     </div>
 
                     <button
                       type='button'
                       onClick={triggerFileInput}
-                      className='w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-white/10 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white transition-all duration-200 hover:bg-gray-200 dark:hover:bg-white/20 group'>
+                      className='w-4/5 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200'
+                      style={{
+                        backgroundColor: 'var(--color-muted)',
+                        color: 'var(--color-foreground)',
+                      }}>
                       <span>Upload File</span>
-                      <UploadCloud className='w-4 h-4 group-hover:scale-110 transition-transform duration-200' />
+                      <UploadCloud
+                        className='w-4 h-4 transition-transform duration-200'
+                        style={{ color: 'var(--color-foreground)' }}
+                      />
                     </button>
 
-                    <p className='mt-3 text-xs text-gray-500 dark:text-gray-400'>or drag and drop your file here</p>
+                    <p className='mt-3 text-xs' style={{ color: 'var(--color-muted-foreground)' }}>
+                      or drag and drop your file here
+                    </p>
 
                     <input
                       ref={fileInputRef}
@@ -473,17 +558,27 @@ export default function FileUpload({
                     </div>
 
                     <div className='text-center space-y-1.5 mb-4'>
-                      <h3 className='text-sm font-semibold text-gray-900 dark:text-white truncate'>{file?.name}</h3>
-                      <div className='flex items-center justify-center gap-2 text-xs'>
-                        <span className='text-gray-500 dark:text-gray-400'>{formatBytes(file?.size || 0)}</span>
-                        <span className='font-medium text-blue-500'>{Math.round(progress)}%</span>
+                      <h3 className='text-sm font-semibold truncate' style={{ color: 'var(--color-foreground)' }}>
+                        {file?.name}
+                      </h3>
+                      <div
+                        className='flex items-center justify-center gap-2 text-xs'
+                        style={{ color: 'var(--color-muted-foreground)' }}>
+                        <span>{formatBytes(file?.size || 0)}</span>
+                        <span className='font-medium' style={{ color: 'var(--color-accent-foreground)' }}>
+                          {Math.round(progress)}%
+                        </span>
                       </div>
                     </div>
 
                     <button
                       onClick={resetState}
                       type='button'
-                      className='w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-white/10 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white transition-all duration-200 hover:bg-gray-200 dark:hover:bg-white/20'>
+                      className='w-4/5 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200'
+                      style={{
+                        backgroundColor: 'var(--color-muted)',
+                        color: 'var(--color-foreground)',
+                      }}>
                       Cancel
                     </button>
                   </motion.div>
@@ -497,8 +592,14 @@ export default function FileUpload({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className='absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg'>
-                  <p className='text-sm text-red-500 dark:text-red-400'>{error.message}</p>
+                  className='absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg'
+                  style={{
+                    backgroundColor: 'var(--color-destructive)',
+                    borderColor: 'var(--color-destructive)',
+                  }}>
+                  <p className='text-sm' style={{ color: 'var(--color-card)' }}>
+                    {error.message}
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>

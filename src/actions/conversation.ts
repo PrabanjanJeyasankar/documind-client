@@ -11,7 +11,8 @@ import type {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!
 
-interface RawVoiceRecording {
+export interface RawVoiceRecording {
+  url: string
   id: string
   audioUrl: string
   timestamp: string
@@ -94,9 +95,10 @@ export async function sendVoiceRecording(
 
 export async function fetchVoiceRecordings(patientId: string): Promise<VoiceRecording[]> {
   const response = await axios.get<RawVoiceRecording[]>(`${API_URL}/api/conversation/${patientId}/recordings`)
+  console.log('Raw voice recordings from API:', response.data) // <== add this
   return response.data.map((raw) => ({
     id: raw.id,
-    url: raw.audioUrl.startsWith('http') ? raw.audioUrl : `${API_URL}${raw.audioUrl}`,
+    url: raw.url.startsWith('http') ? raw.url : `${API_URL}${raw.url}`,
     timestamp: raw.timestamp,
     duration: raw.duration,
     status: raw.status ?? 'sent',
