@@ -2,7 +2,6 @@ import React, { FC, useEffect, useRef, useState } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 import { Play, Pause } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Slider } from '@/components/ui/slider'
 import { formatDuration } from '@/utils/chat-conversation'
 
 export interface AudioBubbleProps {
@@ -21,10 +20,11 @@ export const AudioBubble: FC<AudioBubbleProps> = ({ src, duration }) => {
 
   useEffect(() => {
     if (!containerRef.current) return
+    let unmounted = false
 
     const ws = WaveSurfer.create({
       container: containerRef.current,
-      backend: 'MediaElement', // make sure you have this
+      backend: 'MediaElement',
       waveColor: '#E5E7EB',
       progressColor: '#10B981',
       height: 30,
@@ -33,9 +33,27 @@ export const AudioBubble: FC<AudioBubbleProps> = ({ src, duration }) => {
       cursorWidth: 0,
       normalize: true,
     })
+
     waveSurferRef.current = ws
 
-    // Swallow only AbortErrors from Wavesurfer
+    ws.load(src)
+    ws.on('ready', () => {
+      if (!unmounted) {
+        const d = ws.getDuration()
+        setAudioDuration(Number.isFinite(d) ? d : 0)
+      }
+    })
+    ws.on('audioprocess', (t: number) => {
+      if (!unmounted) setCurrentTime(t)
+    })
+    ws.on('finish', () => {
+      if (!unmounted) {
+        setIsPlaying(false)
+        setCurrentTime(0)
+        ws.seekTo(0)
+      }
+    })
+
     const onUnhandled = (event: PromiseRejectionEvent) => {
       if (event.reason instanceof Error && event.reason.name === 'AbortError') {
         event.preventDefault()
@@ -43,19 +61,8 @@ export const AudioBubble: FC<AudioBubbleProps> = ({ src, duration }) => {
     }
     window.addEventListener('unhandledrejection', onUnhandled)
 
-    ws.load(src)
-    ws.on('ready', () => {
-      const d = ws.getDuration()
-      setAudioDuration(Number.isFinite(d) ? d : 0)
-    })
-    ws.on('audioprocess', (t: number) => setCurrentTime(t))
-    ws.on('finish', () => {
-      setIsPlaying(false)
-      setCurrentTime(0)
-      ws.seekTo(0)
-    })
-
     return () => {
+      unmounted = true
       window.removeEventListener('unhandledrejection', onUnhandled)
       ws.destroy()
     }
@@ -66,14 +73,6 @@ export const AudioBubble: FC<AudioBubbleProps> = ({ src, duration }) => {
     if (!ws) return
     ws.playPause()
     setIsPlaying((p) => !p)
-  }
-
-  const onSeek = (values: number[]): void => {
-    const [newTime] = values
-    const ws = waveSurferRef.current
-    if (!ws || audioDuration <= 0) return
-    ws.seekTo(newTime / audioDuration)
-    setCurrentTime(newTime)
   }
 
   const formattedCurrent = formatDuration(currentTime)
@@ -90,16 +89,6 @@ export const AudioBubble: FC<AudioBubbleProps> = ({ src, duration }) => {
       </Button>
 
       <div ref={containerRef} className='flex-1 h-8' />
-
-      {/* <Slider
-        value={[currentTime]}
-        max={audioDuration}
-        step={0.1}
-        onValueChange={onSeek}
-        aria-label='Seek audio'
-        className='w-24'
-      /> */}
-
       <span className='text-xs font-mono'>
         {formattedCurrent} / {formattedTotal}
       </span>

@@ -1,21 +1,19 @@
-// PatientChatPage.tsx
-
 'use client'
 
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { usePatientDetails } from '@/hooks/use-patient'
-import { ChatPanel } from './chat-panel'
-import { VoicePanel } from './voice-panel'
+import { useMediaQuery } from '@/002-hooks/use-media-query'
+import { usePatientDetails } from '@/002-hooks/use-patient'
+import { TextLogPanel } from './(text-log-panel)/text-log-panel'
+import { VoicePanel } from './(voice-log-panel)/voice-log-panel'
 
-import { IdCard, MessageSquare, Mic, Bot } from 'lucide-react'
+import { IdCard, MessageSquare, Mic, Sparkles } from 'lucide-react'
 import ClassicLoader from '@/components/classic-loader'
 import { PatientDetailsCard } from './patient-details-card'
 import { useAuthStore } from '@/store/auth-store'
 import { usePreferenceStore } from '@/store/preference-store'
-import { PatientAiPanel } from './(patient-ai-panel)/patient-ai-panel'
+import { AiAssitantPanel } from './(ai-assistant-panel)/ai-assistant-panel'
 
 export default function PatientChatPage() {
   const { id } = useParams<{ id: string }>()
@@ -72,25 +70,25 @@ export default function PatientChatPage() {
               <TabsList>
                 <TabsTrigger value='chat'>
                   <MessageSquare className='w-4 h-4 mr-1' />
-                  Add Chat Log
+                  Add Text Log
                 </TabsTrigger>
                 <TabsTrigger value='voice'>
                   <Mic className='w-4 h-4 mr-1' />
                   Add Voice Log
                 </TabsTrigger>
                 <TabsTrigger value='ai'>
-                  <Bot className='w-4 h-4 mr-1' />
+                  <Sparkles className='w-4 h-4 mr-1' />
                   Ask AI Assistant
                 </TabsTrigger>
               </TabsList>
               <TabsContent value='chat' className='flex-1 min-h-0 overflow-y-auto'>
-                <ChatPanel patientId={id} doctorId={doctorId} conversationType='doctor_only' />
+                <TextLogPanel patientId={id} doctorId={doctorId} conversationType='doctor_only' />
               </TabsContent>
               <TabsContent value='voice' className='flex-1 min-h-0 overflow-y-auto'>
                 <VoicePanel patientId={id} doctorId={doctorId!} />
               </TabsContent>
               <TabsContent value='ai' className='flex-1 min-h-0 overflow-y-auto'>
-                <PatientAiPanel patientId={id} doctorId={doctorId!} />
+                <AiAssitantPanel patientId={id} doctorId={doctorId!} />
               </TabsContent>
             </Tabs>
           </TabsContent>
@@ -120,24 +118,24 @@ export default function PatientChatPage() {
             className='flex-1 flex flex-col min-h-0 overflow-hidden'>
             <TabsList>
               <TabsTrigger value='chat'>
-                <MessageSquare className='w-4 h-4 mr-1' /> Add Chat Log
+                <MessageSquare className='w-4 h-4 mr-1' /> Add Text Log
               </TabsTrigger>
               <TabsTrigger value='voice'>
                 <Mic className='w-4 h-4 mr-1' />
                 Add Voice Log
               </TabsTrigger>
               <TabsTrigger value='ai'>
-                <Bot className='w-4 h-4 mr-1' /> Ask AI Assistant
+                <Sparkles className='w-4 h-4 mr-1' /> Ask AI Assistant
               </TabsTrigger>
             </TabsList>
             <TabsContent value='chat' className='flex-1 min-h-0 overflow-y-auto'>
-              <ChatPanel patientId={id} doctorId={doctorId} conversationType='doctor_only' />
+              <TextLogPanel patientId={id} doctorId={doctorId} conversationType='doctor_only' />
             </TabsContent>
             <TabsContent value='voice' className='flex-1 min-h-0 overflow-y-auto'>
               <VoicePanel patientId={id} doctorId={doctorId!} />
             </TabsContent>
             <TabsContent value='ai' className='flex-1 min-h-0 overflow-y-auto'>
-              <PatientAiPanel patientId={id} doctorId={doctorId!} />
+              <AiAssitantPanel patientId={id} doctorId={doctorId!} />
             </TabsContent>
           </Tabs>
         </div>

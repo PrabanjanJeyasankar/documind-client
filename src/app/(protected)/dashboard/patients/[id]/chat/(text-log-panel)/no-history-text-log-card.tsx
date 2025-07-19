@@ -1,10 +1,8 @@
-'use client'
-
 import React from 'react'
 import { motion } from 'framer-motion'
 import { MessageSquareWarning } from 'lucide-react'
 
-const NoChatLogCard = () => {
+const NoHistoryTextLogCard = () => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -22,4 +20,4 @@ const NoChatLogCard = () => {
   )
 }
 
-export default NoChatLogCard
+export default NoHistoryTextLogCard

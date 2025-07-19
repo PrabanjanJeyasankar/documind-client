@@ -1,7 +1,10 @@
-// src/hooks/use-conversation.ts
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchChatMessages, sendChatMessage, fetchVoiceRecordings, sendVoiceRecording } from '@/actions/conversation'
+import {
+  fetchChatMessages,
+  sendChatMessage,
+  fetchVoiceRecordings,
+  sendVoiceRecording,
+} from '@/001-actions/conversation'
 import type { ChatMessage, ChatMessageInput, VoiceRecording } from '@/types'
 
 interface OptimisticChatContext {
@@ -13,8 +16,6 @@ interface OptimisticVoiceContext {
   previous: VoiceRecording[]
   optimisticId: string
 }
-
-// ─── CHAT ─────────────────────────────────────────────────────────────────────
 
 export function usePatientChat(patientId: string) {
   return useQuery<ChatMessage[]>({
@@ -92,8 +93,6 @@ export function useSendPatientChat(patientId: string) {
   })
 }
 
-// ─── VOICE ────────────────────────────────────────────────────────────────────
-
 export function usePatientVoiceRecordings(patientId: string) {
   return useQuery<VoiceRecording[]>({
     queryKey: ['patientVoice', patientId],
@@ -114,17 +113,16 @@ export function useSendVoiceRecording(patientId: string) {
   const client = useQueryClient()
 
   return useMutation<
-    VoiceRecording, // TData
-    Error, // TError
+    VoiceRecording,
+    Error,
     {
-      // TVariables
       audio: Blob
       id: string
       timestamp: string
       duration: number
       doctorId: string
     },
-    OptimisticVoiceContext // TContext
+    OptimisticVoiceContext
   >({
     mutationFn: (vars) => sendVoiceRecording(patientId, vars.doctorId, vars.audio, vars.timestamp),
 
@@ -132,27 +130,23 @@ export function useSendVoiceRecording(patientId: string) {
       await client.cancelQueries({ queryKey: ['patientVoice', patientId] })
       const previous = client.getQueryData<VoiceRecording[]>(['patientVoice', patientId]) ?? []
       const blobUrl = URL.createObjectURL(audio)
-
-      // Check if an item with the same id already exists
       const existingIndex = previous.findIndex((r) => r.id === id)
 
       let newList: VoiceRecording[]
       if (existingIndex !== -1) {
-        // If it exists, update status to pending and keep the rest
         newList = previous.map((r) =>
           r.id === id
             ? {
                 ...r,
                 status: 'pending',
                 file: audio,
-                url: r.url || blobUrl, // keep existing URL or use new one
+                url: r.url || blobUrl,
                 timestamp,
                 duration,
               }
             : r
         )
       } else {
-        // Add new optimistic item
         const optimistic: VoiceRecording = {
           id,
           url: blobUrl,

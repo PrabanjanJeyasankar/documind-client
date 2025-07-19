@@ -4,7 +4,7 @@
 
 import { useRouter, usePathname } from 'next/navigation'
 
-import { useTabDimensions } from '@/hooks/use-tab-dimension'
+import { useTabDimensions } from '@/002-hooks/use-tab-dimension'
 import type { DashboardTabItem, TabAnimationConfig } from '@/types'
 import { cn } from '@/lib/utils'
 import React from 'react'

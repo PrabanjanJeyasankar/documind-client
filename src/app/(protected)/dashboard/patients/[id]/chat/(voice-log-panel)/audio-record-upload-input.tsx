@@ -4,30 +4,23 @@ import { Mic, Pause, Play, UploadCloud } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
-import FileUpload from '@/components/audio-file-upload'
+import FileUpload from '@/app/(protected)/dashboard/patients/[id]/chat/(voice-log-panel)/audio-file-upload'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
 interface AIVoiceProps {
   onRecordingComplete?: (audio: Blob) => void
   showTopGradient?: boolean
-  onUploadSuccess?: (audio: Blob) => void
 }
 
 type RecorderState = 'idle' | 'recording' | 'paused'
 
-export default function AudioRecordUploadInput({
-  onRecordingComplete,
-  showTopGradient,
-  onUploadSuccess,
-}: AIVoiceProps) {
+export default function AudioRecordUploadInput({ onRecordingComplete, showTopGradient }: AIVoiceProps) {
   const [state, setState] = useState<RecorderState>('idle')
   const [time, setTime] = useState<number>(0)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
-
-  // New state for modal visibility
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
 
   useEffect(() => {

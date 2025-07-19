@@ -9,7 +9,7 @@ import ClassicLoader from '@/components/classic-loader'
 
 import { toast } from 'sonner'
 import type { Patient } from '@/types'
-import { useCreatePatient, usePatients } from '@/hooks/use-patient'
+import { useCreatePatient, usePatients } from '@/002-hooks/use-patient'
 import { PatientForm } from './patient-form'
 import { PatientCardsList } from './patient-card-list'
 

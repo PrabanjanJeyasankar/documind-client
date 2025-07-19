@@ -1,8 +1,7 @@
-// components/ChatPanel.tsx
 'use client'
 
 import React, { FC, useEffect, useRef, UIEvent, useState } from 'react'
-import { usePatientChat, useSendPatientChat } from '@/hooks/use-conversation'
+import { usePatientChat, useSendPatientChat } from '@/002-hooks/use-conversation'
 import { usePatientMessagesStore } from '@/store/patient-message-store'
 import type { ChatMessage, ChatMessageInput } from '@/types'
 import ClassicLoader from '@/components/classic-loader'
@@ -11,15 +10,15 @@ import { PromptInput, PromptInputTextarea, PromptInputActions, PromptInputAction
 import { Button } from '@/components/ui/button'
 import { groupMessagesByDate, formatDateHeader, formatTime } from '@/utils/chat-conversation'
 import { useQueryClient } from '@tanstack/react-query'
-import NoChatLogCard from '@/components/no-chat-log-card'
+import NoHistoryTextLogCard from '@/app/(protected)/dashboard/patients/[id]/chat/(text-log-panel)/no-history-text-log-card'
 
-interface ChatPanelProps {
+interface TextLogPanelProps {
   patientId: string
   doctorId: string | undefined
   conversationType: string
 }
 
-export const ChatPanel: FC<ChatPanelProps> = ({ patientId, doctorId, conversationType }) => {
+export const TextLogPanel: FC<TextLogPanelProps> = ({ patientId, doctorId, conversationType }) => {
   const { data: queryData, isLoading } = usePatientChat(patientId)
   const setChatMessages = usePatientMessagesStore((s) => s.setChatMessages)
   const chatFromStore = usePatientMessagesStore((s) => s.chatMessages[patientId])
@@ -61,27 +60,24 @@ export const ChatPanel: FC<ChatPanelProps> = ({ patientId, doctorId, conversatio
     sendMutation.mutate(payload, { onSuccess: () => setInput(''), onError: () => setInput('') })
   }
 
-  // group & sort
   const grouped = groupMessagesByDate(chatMessages)
   const dates = Object.keys(grouped).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
 
   function retryMessage(msg: ChatMessage) {
     if (!doctorId) return
 
-    // 1. Set message back to pending in cache
     client.setQueryData<ChatMessage[]>(['patientChat', patientId], (old) => {
       if (!old) return []
       return old.map((m) => (m.id === msg.id ? { ...m, status: 'pending' } : m))
     })
 
-    // 2. Reuse the same ID during retry
     sendMutation.mutate(
       {
         patientId,
         doctorId,
         conversationType,
         fullTranscript: msg.fullTranscript,
-        optimisticId: msg.id, // 👈 crucial part
+        optimisticId: msg.id,
       },
       {
         onError: () => {
@@ -106,7 +102,7 @@ export const ChatPanel: FC<ChatPanelProps> = ({ patientId, doctorId, conversatio
             <ClassicLoader className='w-5 h-5' />
           </div>
         ) : chatMessages.length === 0 ? (
-          <NoChatLogCard />
+          <NoHistoryTextLogCard />
         ) : (
           dates.map((dateStr) => (
             <div key={dateStr}>

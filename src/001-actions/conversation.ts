@@ -22,7 +22,6 @@ export interface RawVoiceRecording {
   transcriptSegments?: TranscriptSegment[]
 }
 
-// helper: derive a safe integer duration from a Blob
 async function getAudioDuration(file: Blob): Promise<number> {
   return new Promise<number>((resolve) => {
     const audio = document.createElement('audio')
@@ -30,7 +29,6 @@ async function getAudioDuration(file: Blob): Promise<number> {
     audio.onloadedmetadata = () => {
       const raw = audio.duration || 0
       URL.revokeObjectURL(audio.src)
-      // clamp to finite integer
       const safe = Number.isFinite(raw) ? Math.round(raw) : 0
       resolve(safe)
     }

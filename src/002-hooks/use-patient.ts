@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchPatientsByDoctor, createPatient, fetchPatientById } from '@/actions/patient'
+import { fetchPatientsByDoctor, createPatient, fetchPatientById } from '@/001-actions/patient'
 import type { Patient } from '@/types'
 
 // Fetch patients

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { FC, useEffect, useRef, useState, UIEvent } from 'react'
-import { useAiChatHistory, useSubmitAiQuestion } from '@/hooks/use-ai-chat'
+import { useAiChatHistory, useSubmitAiQuestion } from '@/002-hooks/use-ai-chat'
 import { PromptInput, PromptInputTextarea, PromptInputActions, PromptInputAction } from '@/components/ui/prompt-input'
 import { Button } from '@/components/ui/button'
 import { ArrowDown, ArrowUp, Loader } from 'lucide-react'
@@ -13,12 +13,12 @@ import { cn } from '@/lib/utils'
 import HistoryLoadingSkeleton from './history-loading-skeleton'
 import NoInteractionCard from './no-interaction-card'
 
-interface AiAssistantPanelProps {
+interface AiAssitantPanelProps {
   patientId: string
   doctorId: string
 }
 
-export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId }) => {
+export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId }) => {
   const { data: remoteMsgs, isLoading: isHistoryLoading } = useAiChatHistory(patientId)
   const sendMutation = useSubmitAiQuestion()
   const [localMsgs, setLocalMsgs] = useState<LocalAiMessage[]>([])
@@ -29,7 +29,7 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
   const [input, setInput] = useState('')
 
   useEffect(() => {
-    if (!remoteMsgs) return
+    if (!remoteMsgs) return // Don't reset localMsgs if remoteMsgs not loaded yet
 
     const remoteWithMeta: LocalAiMessage[] = remoteMsgs.map((m) => ({
       ...m,
@@ -40,8 +40,14 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
     }))
 
     setLocalMsgs((prev) => {
-      const seen = new Set(remoteWithMeta.map((m) => m.id))
-      const pendingOrNew = prev.filter((m) => m.status !== 'sent' || !seen.has(m.id))
+      const remoteIds = new Set(remoteWithMeta.map((m) => m.id))
+      const prevIds = new Set(prev.filter((m) => m.status === 'sent').map((m) => m.id))
+
+      if (remoteIds.size === prevIds.size && [...remoteIds].every((id) => prevIds.has(id))) {
+        return prev
+      }
+
+      const pendingOrNew = prev.filter((m) => m.status !== 'sent' || !remoteIds.has(m.id))
 
       return [...remoteWithMeta, ...pendingOrNew]
     })

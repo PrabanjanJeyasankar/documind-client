@@ -4,7 +4,7 @@ import {
   submitAiQuestion,
   SubmitAiQuestionPayload,
   SubmitAiQuestionResponse,
-} from '@/actions/ai-chat'
+} from '@/001-actions/ai-chat'
 import { AiChatMessage } from '@/types'
 
 export function useSubmitAiQuestion() {

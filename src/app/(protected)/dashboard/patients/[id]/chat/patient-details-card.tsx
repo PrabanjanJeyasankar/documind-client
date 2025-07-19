@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { User, Mail, Phone, Home, Droplet, Info, ListChecks, ChevronLeft, Heart, Shield, Tag, Cake } from 'lucide-react'
+import { User, Mail, Phone, Home, Droplet, Info, ChevronLeft, Heart, Shield, Tag, Cake } from 'lucide-react'
 import type { Patient } from '@/types'
 import { format, parseISO } from 'date-fns'
 import { Button } from '@/components/ui/button'
@@ -29,7 +29,6 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
 
   return (
     <Card className='shadow-none bg-sidebar-accent border-none font-sans overflow-hidden !pt-2'>
-      {/* Header with Back button and Patient Avatar/Name */}
       <div className='flex flex-col items-start justify-between gap-6 px-4 py-2'>
         <Button
           variant='outline'
@@ -59,9 +58,8 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
       </div>
 
       <CardContent className='px-6 pb-6'>
-        {/* Enhanced Bento Grid Layout */}
         <div className='grid grid-cols-12 gap-4 auto-rows-auto'>
-          {/* Contact Information - Main Section */}
+          {/* Contact Information */}
           <div className='col-span-12 lg:col-span-8'>
             <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2 mb-4'>
               <User className='w-4 h-4' />
@@ -69,7 +67,7 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
             </h2>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-              {/* DOB & Age - Featured Card */}
+              {/* DOB & Age  */}
               <div className='md:col-span-2 flex items-center gap-4 bg-sidebar-accent-foreground/5 rounded-lg p-4 border border-sidebar-accent-foreground/10'>
                 <div className='w-12 h-12 rounded-full bg-sidebar-accent-foreground/10 flex items-center justify-center'>
                   <Cake className='w-6 h-6 text-sidebar-accent-foreground/70' />
@@ -166,7 +164,7 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
             </div>
           </div>
 
-          {/* Conditions - Full Width Section */}
+          {/* Conditions */}
           {((patient.allergies && patient.allergies.length > 0) ||
             (patient.chronicConditions && patient.chronicConditions.length > 0)) && (
             <div className='col-span-12'>

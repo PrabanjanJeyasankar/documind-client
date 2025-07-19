@@ -1,20 +1,23 @@
-// components/VoicePanel.tsx
 'use client'
-
 import React, { FC, useEffect, useRef, useState, UIEvent } from 'react'
-import { usePatientVoiceRecordings, useSendVoiceRecording } from '@/hooks/use-conversation'
-import { usePatientMessagesStore } from '@/store/patient-message-store'
-import ClassicLoader from '@/components/classic-loader'
-import AudioRecordUploadInput from '@/components/audio-record-upload-input'
+
 import { toast } from 'sonner'
-import { VoiceMessageBubble } from '@/components/voice-message-bubble'
-import type { VoiceRecording } from '@/types'
-import { Button } from '@/components/ui/button'
 import { AlertCircle, ArrowDown } from 'lucide-react'
+
+import { usePatientVoiceRecordings, useSendVoiceRecording } from '@/002-hooks/use-conversation'
+import { usePatientMessagesStore } from '@/store/patient-message-store'
+
+import { Button } from '@/components/ui/button'
+import ClassicLoader from '@/components/classic-loader'
+import AudioRecordUploadInput from '@/app/(protected)/dashboard/patients/[id]/chat/(voice-log-panel)/audio-record-upload-input'
+import { VoiceMessageBubble } from '@/app/(protected)/dashboard/patients/[id]/chat/(voice-log-panel)/voice-message-bubble'
+import { TranscriptList } from '@/app/(protected)/dashboard/patients/[id]/chat/(voice-log-panel)/transcript-list'
+import NoVoiceLogCard from '@/app/(protected)/dashboard/patients/[id]/chat/(voice-log-panel)/no-voice-log-card'
+
 import { groupVoiceByDate } from '@/utils/voice-conversation'
 import { formatDateHeader } from '@/utils/chat-conversation'
-import { TranscriptList } from '@/components/transcript-list'
-import NoVoiceLogCard from '@/components/no-voice-log-card'
+
+import type { VoiceRecording } from '@/types'
 
 interface VoicePanelProps {
   patientId: string
@@ -32,11 +35,7 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
     console.log('storeRecs:', storeRecs)
   }, [serverRecs, storeRecs])
 
-  // disable until the latest "sent" note has a transcript
-  // const awaiting = storeRecs.some((r) => r.status === 'sent' && !r.fullTranscript)
   const storageKey = `pending-voice-${patientId}`
-
-  // refs and state for scroll behavior
   const containerRef = useRef<HTMLDivElement>(null)
   const endRef = useRef<HTMLDivElement>(null)
   const [atBottom, setAtBottom] = useState(true)
@@ -51,15 +50,8 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
     setStore(patientId, (prev) => {
       const existing = prev ?? []
       const serverIds = new Set(serverRecs.map((r) => r.id))
-
-      // Filter out any optimistic recordings that are now saved on server (matching by id)
-      // or if you want, also remove optimistic records with the same timestamp + duration or url,
-      // depending on your matching criteria.
-
-      // For simplicity, remove optimistic records with same id as server records
       const filtered = existing.filter((r) => !serverIds.has(r.id))
 
-      // Merge server recordings replacing optimistic ones
       return [...filtered, ...serverRecs].sort(
         (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       )
@@ -265,7 +257,6 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
       )}
 
       <div className='flex justify-center pb-4'>
-        {/* style={{ pointerEvents: awaiting ? 'none' : undefined, opacity: awaiting ? 0.6 : 1 }}> */}
         <AudioRecordUploadInput onRecordingComplete={handleRecordingComplete} showTopGradient={isScrolledUp} />
       </div>
     </div>
