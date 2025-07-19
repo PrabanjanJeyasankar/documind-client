@@ -14,6 +14,7 @@ import { ArrowDown } from 'lucide-react'
 import { groupVoiceByDate } from '@/utils/voice-conversation'
 import { formatDateHeader } from '@/utils/chat-conversation'
 import { TranscriptList } from '@/components/transcript-list'
+import NoVoiceLogCard from '@/components/no-voice-log-card'
 
 interface VoicePanelProps {
   patientId: string
@@ -23,10 +24,12 @@ interface VoicePanelProps {
 export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
   const { data: serverRecs, isLoading } = usePatientVoiceRecordings(patientId)
   const setStore = usePatientMessagesStore((s) => s.setVoiceRecordings)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const storeRecs = usePatientMessagesStore((s) => s.voiceRecordings[patientId]) ?? []
 
   // disable until the latest "sent" note has a transcript
   const awaiting = storeRecs.some((r) => r.status === 'sent' && !r.fullTranscript)
+  const storageKey = `pending-voice-${patientId}`
 
   // refs and state for scroll behavior
   const containerRef = useRef<HTMLDivElement>(null)
@@ -71,20 +74,28 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
     const duration = await getAudioDuration(audio)
     const blobUrl = URL.createObjectURL(audio)
 
-    // optimistic
-    setStore(patientId, (prev) => [
-      ...(prev ?? []),
-      { id, url: blobUrl, timestamp, duration, status: 'pending', file: audio },
-    ])
+    setStore(patientId, (prev) => {
+      const existing = prev ?? []
+      const filtered = existing.filter((r) => r.id !== id)
+      return [
+        ...filtered,
+        {
+          id,
+          url: blobUrl,
+          timestamp,
+          duration,
+          status: 'pending',
+          file: audio,
+        },
+      ]
+    })
 
     sendMut.mutate(
       { audio, id, timestamp, duration, doctorId },
       {
-        onSuccess: (saved, _vars, context) => {
-          if (!context) return
-          setStore(patientId, (prev) =>
-            (prev ?? []).map((r) => (r.id === context.optimisticId ? { ...saved, status: 'sent' } : r))
-          )
+        onSuccess: (saved) => {
+          setStore(patientId, (prev) => (prev ?? []).map((r) => (r.id === id ? { ...saved, status: 'sent' } : r)))
+          localStorage.removeItem(storageKey)
           toast.success('Voice note uploaded!')
         },
         onError: async (err) => {
@@ -98,15 +109,13 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
                 errorCode = body.detail.code
                 message = body.detail.message || message
               }
-            } catch {
-              // do nothing
-            }
+            } catch {}
           }
 
           setStore(patientId, (prev) =>
             (prev ?? []).map((r) => (r.id === id ? { ...r, status: 'failed', errorCode } : r))
           )
-
+          localStorage.removeItem(storageKey)
           toast.error(message)
         },
       }
@@ -115,7 +124,9 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
 
   const retry = (rec: VoiceRecording) => {
     setStore(patientId, (prev) => (prev ?? []).map((r) => (r.id === rec.id ? { ...r, status: 'pending' } : r)))
+
     if (!rec.file) return
+
     sendMut.mutate(
       {
         audio: rec.file,
@@ -127,6 +138,7 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
       {
         onSuccess: (saved) => {
           setStore(patientId, (prev) => (prev ?? []).map((r) => (r.id === rec.id ? { ...saved, status: 'sent' } : r)))
+          localStorage.removeItem(storageKey)
           toast.success('Retry succeeded!')
         },
         onError: () => {
@@ -170,12 +182,14 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
   return (
     <div className='relative flex flex-col h-full min-h-0 bg-background rounded-lg border'>
       <div ref={containerRef} onScroll={handleScroll} className='flex-1 overflow-y-auto p-4 space-y-3'>
-        {storeRecs.length === 0 && isLoading ? (
-          <div className='flex justify-center py-6'>
-            <ClassicLoader className='w-5 h-5' />
-          </div>
-        ) : storeRecs.length === 0 ? (
-          <div className='text-center text-muted-foreground my-6'>No voice notes yet</div>
+        {storeRecs.length === 0 ? (
+          isLoading ? (
+            <div className='flex justify-center py-6'>
+              <ClassicLoader className='w-5 h-5' />
+            </div>
+          ) : (
+            <NoVoiceLogCard />
+          )
         ) : (
           dates.map((dateStr) => (
             <div key={dateStr}>

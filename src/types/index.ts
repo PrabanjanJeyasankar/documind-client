@@ -121,6 +121,7 @@ export interface ChatMessageInput {
   doctorId: string
   conversationType: string
   fullTranscript: string
+  onOptimisticSend?: () => void
 }
 
 export type VoiceRecordingStatus = 'pending' | 'sent' | 'failed'
@@ -156,4 +157,5 @@ export interface LocalAiMessage extends AiChatMessage {
   localId: string
   status: 'pending' | 'sent' | 'failed'
   showCot: boolean
+  isFromHistory?: boolean
 }

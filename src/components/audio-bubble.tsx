@@ -28,7 +28,8 @@ export const AudioBubble: FC<AudioBubbleProps> = ({ src, duration }) => {
       waveColor: '#E5E7EB',
       progressColor: '#10B981',
       height: 30,
-      barWidth: 2,
+      barWidth: 3,
+      barRadius: 20,
       cursorWidth: 0,
       normalize: true,
     })
@@ -90,14 +91,14 @@ export const AudioBubble: FC<AudioBubbleProps> = ({ src, duration }) => {
 
       <div ref={containerRef} className='flex-1 h-8' />
 
-      <Slider
+      {/* <Slider
         value={[currentTime]}
         max={audioDuration}
         step={0.1}
         onValueChange={onSeek}
         aria-label='Seek audio'
         className='w-24'
-      />
+      /> */}
 
       <span className='text-xs font-mono'>
         {formattedCurrent} / {formattedTotal}

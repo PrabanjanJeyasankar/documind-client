@@ -1,23 +1,30 @@
 'use client'
 
-import { Mic, Pause, Play } from 'lucide-react'
+import { Mic, Pause, Play, UploadCloud } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
+import FileUpload from '@/components/file-upload'
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 interface AIVoiceProps {
   onRecordingComplete?: (audio: Blob) => void
   showTopGradient?: boolean
+  onUploadSuccess?: (audio: Blob) => void
 }
 
 type RecorderState = 'idle' | 'recording' | 'paused'
 
-export default function AI_Voice({ onRecordingComplete, showTopGradient }: AIVoiceProps) {
+export default function AI_Voice({ onRecordingComplete, showTopGradient, onUploadSuccess }: AIVoiceProps) {
   const [state, setState] = useState<RecorderState>('idle')
   const [time, setTime] = useState<number>(0)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
+
+  // New state for modal visibility
+  const [uploadModalOpen, setUploadModalOpen] = useState(false)
 
   useEffect(() => {
     if (state === 'recording') {
@@ -34,7 +41,6 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient }: AIVoi
     }
   }, [state])
 
-  // Format time MM:SS
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -50,7 +56,6 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient }: AIVoi
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       const recorder = new MediaRecorder(stream)
       setMediaRecorder(recorder)
-      // CHANGED: reset ref, not state
       audioChunksRef.current = []
 
       recorder.ondataavailable = (e: BlobEvent) => {
@@ -70,7 +75,6 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient }: AIVoi
     }
   }, [onRecordingComplete])
 
-  // Stop recording (from any state)
   const stopRecording = () => {
     if (mediaRecorder) {
       mediaRecorder.stop()
@@ -79,7 +83,6 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient }: AIVoi
     }
   }
 
-  // Pause/Resume
   const pauseRecording = () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       mediaRecorder.pause()
@@ -93,13 +96,22 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient }: AIVoi
     }
   }
 
-  // Handle click (mic icon): start or stop
   const handleMicClick = () => {
     if (state === 'idle') startRecording()
     else stopRecording()
   }
 
-  // Cleanup on unmount
+  const handleUploadSuccess = (file: File) => {
+    setUploadModalOpen(false)
+    const audioBlob = new Blob([file], { type: file.type })
+    if (onUploadSuccess) onUploadSuccess(audioBlob)
+    toast.success('Audio file uploaded!')
+  }
+
+  const handleUploadError = (error: { message: string }) => {
+    toast.error(error.message)
+  }
+
   useEffect(() => {
     return () => {
       if (mediaRecorder && mediaRecorder.state !== 'inactive') {
@@ -115,11 +127,23 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient }: AIVoi
         <div className='pointer-events-none absolute bottom-28 left-0 right-0 h-8 bg-gradient-to-t from-black/5 to-transparent z-10' />
       )}
 
-      <div className='w-full flex justify-between items-center px-4 pt-4 '>
-        <div />
+      <div className='w-full flex justify-between items-center px-6 pt-4 '>
+        {/* Upload Audio Button Left */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant='secondary'
+              size='lg' // larger button
+              onClick={() => setUploadModalOpen(true)}
+              className='flex items-center justify-center rounded-full gap-1 p-6'>
+              <UploadCloud className='w-10 h-10' />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Upload Audio</TooltipContent>
+        </Tooltip>
 
+        {/* Recording & timer center */}
         <div className='flex flex-col items-center gap-2.5'>
-          {/* Time display */}
           <span
             className={cn(
               'font-mono text-sm transition-opacity duration-300 mt-2 text-right',
@@ -151,12 +175,12 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient }: AIVoi
             ))}
           </div>
 
-          {/* Recording status text */}
           <p className='h-4 text-xs text-center text-black/70 dark:text-white/70'>
             {state === 'idle' ? 'Click to speak' : state === 'paused' ? 'Paused (resume to continue)' : 'Listening...'}
           </p>
         </div>
 
+        {/* Mic controls Right */}
         <div className='flex items-center gap-3'>
           {(state === 'recording' || state === 'paused') && (
             <Tooltip>
@@ -203,6 +227,30 @@ export default function AI_Voice({ onRecordingComplete, showTopGradient }: AIVoi
           </Tooltip>
         </div>
       </div>
+
+      {/* Upload modal */}
+      {uploadModalOpen && (
+        <div
+          className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm'
+          onClick={() => setUploadModalOpen(false)}
+          role='dialog'
+          aria-modal='true'>
+          <div className='bg-background rounded-lg p-6 max-w-md w-full shadow-lg' onClick={(e) => e.stopPropagation()}>
+            <h3 className='text-lg font-semibold mb-4'>Upload Audio File</h3>
+            <FileUpload
+              acceptedFileTypes={['audio/*']}
+              maxFileSize={10 * 1024 * 1024} // 10MB max
+              onUploadSuccess={handleUploadSuccess}
+              onUploadError={handleUploadError}
+            />
+            <div className='mt-4 flex justify-end'>
+              <Button variant='ghost' size='sm' onClick={() => setUploadModalOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </TooltipProvider>
   )
 }

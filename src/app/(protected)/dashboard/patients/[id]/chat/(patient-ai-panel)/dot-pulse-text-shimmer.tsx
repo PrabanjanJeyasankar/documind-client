@@ -1,4 +1,3 @@
-// components/prompt-kit/PulseDotTextShimmerLoader.tsx
 'use client'
 
 import React from 'react'

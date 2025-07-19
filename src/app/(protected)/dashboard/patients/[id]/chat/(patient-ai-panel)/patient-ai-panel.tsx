@@ -2,16 +2,16 @@
 
 import React, { FC, useEffect, useRef, useState, UIEvent } from 'react'
 import { useAiChatHistory, useSubmitAiQuestion } from '@/hooks/use-ai-chat'
-import ClassicLoader from '@/components/classic-loader'
 import { PromptInput, PromptInputTextarea, PromptInputActions, PromptInputAction } from '@/components/ui/prompt-input'
 import { Button } from '@/components/ui/button'
-import { ArrowDown, ArrowUp } from 'lucide-react'
+import { ArrowDown, ArrowUp, Loader } from 'lucide-react'
 import { ResponseStream } from '@/components/ui/response-stream'
 import { Reasoning, ReasoningTrigger, ReasoningContent } from '@/components/ui/reasoning'
 import { groupMessagesByDate, formatDateHeader, formatTime } from '@/utils/chat-conversation'
 import { LocalAiMessage } from '@/types'
-import { DotPulseTextShimmerLoader } from './dot-pulse-text-shimmer'
 import { cn } from '@/lib/utils'
+import HistoryLoadingSkeleton from './history-loading-skeleton'
+import NoInteractionCard from './no-interaction-card'
 
 interface AiAssistantPanelProps {
   patientId: string
@@ -22,16 +22,30 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
   const { data: remoteMsgs, isLoading: isHistoryLoading } = useAiChatHistory(patientId)
   const sendMutation = useSubmitAiQuestion()
   const [localMsgs, setLocalMsgs] = useState<LocalAiMessage[]>([])
+  const hasActivePending = localMsgs.some((msg) => msg.status === 'pending')
   const [atBottom, setAtBottom] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
   const endRef = useRef<HTMLDivElement>(null)
   const [input, setInput] = useState('')
 
   useEffect(() => {
-    if (remoteMsgs) {
-      setLocalMsgs((prev) => prev.filter((m) => m.status === 'pending'))
-    }
-  }, [remoteMsgs])
+    if (!remoteMsgs) return
+
+    const remoteWithMeta: LocalAiMessage[] = remoteMsgs.map((m) => ({
+      ...m,
+      localId: m.id,
+      status: 'sent',
+      showCot: false,
+      isFromHistory: true,
+    }))
+
+    setLocalMsgs((prev) => {
+      const seen = new Set(remoteWithMeta.map((m) => m.id))
+      const pendingOrNew = prev.filter((m) => m.status !== 'sent' || !seen.has(m.id))
+
+      return [...remoteWithMeta, ...pendingOrNew]
+    })
+  }, [remoteMsgs, patientId])
 
   useEffect(() => {
     if (containerRef.current) {
@@ -45,7 +59,7 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
   }
 
   function send() {
-    if (!input.trim() || sendMutation.isPending) return
+    if (!input.trim() || hasActivePending || sendMutation.isPending) return
 
     const prompt = input.trim()
     const localId = `local-${Date.now()}`
@@ -68,6 +82,23 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
       { query: prompt, doctorId, patientId },
       {
         onSuccess: (res) => {
+          console.log('[AI RAW RESPONSE]', res)
+          let parsedThought = res.thought
+          let parsedAnswer = res.answer
+
+          try {
+            const match = res.answer.match(/```json\s*([\s\S]+?)\s*```/)
+
+            if (match && match[1]) {
+              const json = JSON.parse(match[1])
+              parsedThought = json.thought ?? ''
+              parsedAnswer = json.answer ?? res.answer
+              console.log('[AI PARSED JSON]', { parsedThought, parsedAnswer })
+            }
+          } catch (err) {
+            console.error('[AI RESPONSE PARSE ERROR]', err)
+          }
+
           setLocalMsgs((prev) =>
             prev.map((m) =>
               m.localId === localId
@@ -75,8 +106,9 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
                     ...m,
                     id: res.conversationId,
                     status: 'sent',
-                    thought: res.thought,
-                    answer: res.answer,
+                    localId: res.conversationId,
+                    thought: parsedThought,
+                    answer: parsedAnswer,
                   }
                 : m
             )
@@ -89,15 +121,7 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
     )
   }
 
-  const allMsgs: LocalAiMessage[] = [
-    ...(remoteMsgs ?? []).map((m) => ({
-      ...m,
-      localId: m.id,
-      status: 'sent' as const,
-      showCot: false,
-    })),
-    ...localMsgs,
-  ]
+  const allMsgs: LocalAiMessage[] = localMsgs
 
   const grouped = groupMessagesByDate(allMsgs.map((m) => ({ ...m, timestamp: m.createdAt })))
   const dates = Object.keys(grouped).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
@@ -110,11 +134,9 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
 
       <div ref={containerRef} onScroll={handleScroll} className='flex-1 overflow-y-auto p-4'>
         {isHistoryLoading && allMsgs.length === 0 ? (
-          <div className='flex justify-center py-6'>
-            <ClassicLoader className='w-5 h-5' />
-          </div>
+          <HistoryLoadingSkeleton />
         ) : allMsgs.length === 0 ? (
-          <div className='text-center text-muted-foreground my-6'>No interactions yet</div>
+          <NoInteractionCard />
         ) : (
           dates.map((dateStr) => (
             <div key={dateStr}>
@@ -122,66 +144,73 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
                 <span className='text-xs font-mono bg-muted px-3 py-1 rounded-xl'>{formatDateHeader(dateStr)}</span>
               </div>
 
-              {grouped[dateStr].map((msg, i) => (
-                <div key={msg.localId} className='flex flex-col gap-1 mb-4'>
-                  {/* Query bubble */}
-                  <div className='flex justify-end'>
-                    <div className='relative max-w-xs bg-primary text-primary-foreground px-4 py-2 rounded-2xl rounded-br-lg shadow'>
-                      {msg.query}
+              {grouped[dateStr].map((msg, i) => {
+                return (
+                  <div key={msg.localId} className='flex flex-col gap-1 mb-4'>
+                    {/* Query bubble */}
+                    <div className='flex justify-end'>
+                      <div className='relative max-w-xs bg-primary text-primary-foreground px-4 py-2 rounded-2xl rounded-br-none shadow'>
+                        {msg.query}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* AI response */}
-                  <div className='flex justify-start'>
-                    <div
-                      className={cn(
-                        'max-w-xs rounded-2xl rounded-tl-none text-sm',
-                        msg.status === 'pending'
-                          ? 'p-0 bg-transparent border-none'
-                          : 'border p-3 bg-muted text-muted-foreground'
-                      )}>
-                      {/* pending shimmer */}
-                      {msg.status === 'pending' ? (
-                        <DotPulseTextShimmerLoader />
-                      ) : (
-                        <>
-                          {msg.thought && (
-                            <>
-                              <Reasoning
-                                open={msg.showCot}
-                                onOpenChange={(open) =>
-                                  setLocalMsgs((prev) =>
-                                    prev.map((m) => (m.localId === msg.localId ? { ...m, showCot: open } : m))
-                                  )
-                                }
-                                isStreaming={false}>
-                                <ReasoningTrigger>Show reasoning</ReasoningTrigger>
-                                <ReasoningContent className='ml-2 border-l px-2 py-1 border-border'>
-                                  {msg.thought}
-                                </ReasoningContent>
-                              </Reasoning>
-                            </>
-                          )}
-
-                          <div className='mt-2'>
-                            <ResponseStream textStream={msg.answer} mode='typewriter' speed={20} />
+                    {/* AI response */}
+                    <div className='flex justify-start'>
+                      <div
+                        className={cn(
+                          'max-w-xs rounded-2xl rounded-tl-none text-sm border-none mt-2',
+                          msg.answer !== 'pending' && 'bg-muted',
+                          msg.answer === 'pending' || (msg.thought && msg.answer) ? 'p-4' : 'p-0'
+                        )}>
+                        {/* {true ? ( */}
+                        {msg.status === 'pending' ? (
+                          <div className='flex justify-start'>
+                            <div className='h-10 w-48 rounded-2xl rounded-tl-none bg-gradient-to-r from-primary/10 via-white/40 to-primary/10 bg-[length:200%_100%] animate-[shimmer_2s_infinite_linear]' />
                           </div>
-                        </>
-                      )}
+                        ) : (
+                          <>
+                            {msg.thought && (
+                              <>
+                                <Reasoning
+                                  open={msg.showCot}
+                                  onOpenChange={(open) =>
+                                    setLocalMsgs((prev) =>
+                                      prev.map((m) => (m.localId === msg.localId ? { ...m, showCot: open } : m))
+                                    )
+                                  }
+                                  isStreaming={!msg.isFromHistory}>
+                                  <ReasoningTrigger>Show reasoning</ReasoningTrigger>
+                                  <ReasoningContent className='ml-2 border-l px-2 py-1 border-border'>
+                                    {msg.thought}
+                                  </ReasoningContent>
+                                </Reasoning>
+                              </>
+                            )}
+
+                            <div className={cn(msg.showCot && 'mt-4')}>
+                              <ResponseStream
+                                textStream={msg.answer}
+                                mode={msg.isFromHistory ? 'static' : 'typewriter'}
+                                speed={20}
+                              />
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
+
+                    {/* timestamp */}
+                    {msg.status !== 'pending' && (
+                      <div className='flex justify-start text-[11px] font-mono text-muted-foreground ml-1'>
+                        {formatTime(msg.createdAt)}
+                      </div>
+                    )}
+
+                    {/* autoscroll anchor */}
+                    {i === grouped[dateStr].length - 1 && dateStr === dates[dates.length - 1] && <div ref={endRef} />}
                   </div>
-
-                  {/* timestamp */}
-                  {msg.status !== 'pending' && (
-                    <div className='flex justify-start text-[11px] font-mono text-muted-foreground ml-1'>
-                      {formatTime(msg.createdAt)}
-                    </div>
-                  )}
-
-                  {/* autoscroll anchor */}
-                  {i === grouped[dateStr].length - 1 && dateStr === dates[dates.length - 1] && <div ref={endRef} />}
-                </div>
-              ))}
+                )
+              })}
             </div>
           ))
         )}
@@ -212,12 +241,8 @@ export const PatientAiPanel: FC<AiAssistantPanelProps> = ({ patientId, doctorId 
                 type='button'
                 onClick={send}
                 className='p-2 rounded-full bg-primary text-primary-foreground'
-                disabled={!input.trim() || sendMutation.isPending}>
-                {sendMutation.isPending ? (
-                  <ArrowUp className='w-5 h-5 animate-spin' />
-                ) : (
-                  <ArrowUp className='w-5 h-5' />
-                )}
+                disabled={!input.trim() || hasActivePending || sendMutation.isPending}>
+                {sendMutation.isPending ? <Loader className='w-4 h-4 animate-spin' /> : <ArrowUp className='w-5 h-5' />}
               </button>
             </PromptInputAction>
           </PromptInputActions>

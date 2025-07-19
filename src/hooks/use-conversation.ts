@@ -26,48 +26,58 @@ export function usePatientChat(patientId: string) {
   })
 }
 
+type ChatMutationVariables = ChatMessageInput & {
+  optimisticId?: string
+}
+
 export function useSendPatientChat(patientId: string) {
   const client = useQueryClient()
 
-  return useMutation<
-    ChatMessage, // TData
-    Error, // TError
-    ChatMessageInput, // TVariables
-    OptimisticChatContext // TContext
-  >({
+  return useMutation<ChatMessage, Error, ChatMutationVariables, OptimisticChatContext>({
     mutationFn: sendChatMessage,
 
-    onMutate: async (newMsg: ChatMessageInput): Promise<OptimisticChatContext> => {
+    onMutate: async (newMsg: ChatMessageInput & { optimisticId?: string; onOptimisticSend?: () => void }) => {
       await client.cancelQueries({ queryKey: ['patientChat', patientId] })
+
       const previousMessages = client.getQueryData<ChatMessage[]>(['patientChat', patientId]) ?? []
-      const optimisticId = `optimistic-${Date.now()}`
+      const optimisticId = newMsg.optimisticId ?? `optimistic-${Date.now()}`
+
       const optimisticMsg: ChatMessage = {
         id: optimisticId,
         ...newMsg,
         timestamp: new Date().toISOString(),
         status: 'pending',
       }
-      client.setQueryData<ChatMessage[]>(['patientChat', patientId], [...previousMessages, optimisticMsg])
+
+      client.setQueryData<ChatMessage[]>(['patientChat', patientId], (prev) => {
+        const existing = prev ?? []
+        const alreadyExists = existing.some((m) => m.id === optimisticId)
+
+        if (alreadyExists) {
+          return existing.map((m) => (m.id === optimisticId ? optimisticMsg : m))
+        }
+
+        return [...existing, optimisticMsg]
+      })
+
       return { previousMessages, optimisticId }
     },
-
     onError: (error: Error, newMsg: ChatMessageInput, context?: OptimisticChatContext) => {
-      if (context) {
-        client.setQueryData<ChatMessage[]>(
-          ['patientChat', patientId],
-          [
-            ...context.previousMessages,
-            {
-              ...newMsg,
-              id: context.optimisticId,
-              timestamp: new Date().toISOString(),
-              status: 'failed',
-            },
-          ]
-        )
-      }
-    },
+      if (!context) return
 
+      client.setQueryData<ChatMessage[]>(['patientChat', patientId], (old) => {
+        if (!old) return []
+
+        return old.map((msg) =>
+          msg.id === context.optimisticId
+            ? {
+                ...msg,
+                status: 'failed',
+              }
+            : msg
+        )
+      })
+    },
     onSuccess: (data: ChatMessage, _vars: ChatMessageInput, context?: OptimisticChatContext) => {
       if (context) {
         const all = client.getQueryData<ChatMessage[]>(['patientChat', patientId]) ?? []

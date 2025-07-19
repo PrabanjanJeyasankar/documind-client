@@ -74,12 +74,12 @@ function ReasoningTrigger({ children, className, ...props }: ReasoningTriggerPro
 
   return (
     <button
-      className={cn('flex cursor-pointer items-center gap-2', className)}
+      className={cn('flex cursor-pointer items-center gap-2 ', className)}
       onClick={() => onOpenChange(!isOpen)}
       {...props}>
-      <span className='text-primary'>{children}</span>
+      <span className='text-muted-foreground'>{children}</span>
       <div className={cn('transform transition-transform', isOpen ? 'rotate-180' : '')}>
-        <ChevronDownIcon className='size-4' />
+        <ChevronDownIcon className='size-4 text-muted-foreground' />
       </div>
     </button>
   )
@@ -117,12 +117,12 @@ function ReasoningContent({ children, className, contentClassName, ...props }: R
   return (
     <div
       ref={contentRef}
-      className={cn('overflow-hidden transition-[max-height] duration-150 ease-out', className)}
+      className={cn('overflow-hidden transition-[max-height] duration-350 ease-out', className)}
       style={{
         maxHeight: isOpen ? contentRef.current?.scrollHeight : '0px',
       }}
       {...props}>
-      <div ref={innerRef} className={cn('text-muted-foreground text-sm whitespace-pre-wrap', contentClassName)}>
+      <div ref={innerRef} className={cn('text-muted-foreground text-sm whitespace-pre-wrap mb-2', contentClassName)}>
         {children}
       </div>
     </div>

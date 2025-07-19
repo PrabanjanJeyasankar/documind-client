@@ -17,7 +17,7 @@ export interface SubmitAiQuestionResponse {
 }
 
 export async function submitAiQuestion(payload: SubmitAiQuestionPayload): Promise<SubmitAiQuestionResponse> {
-  const response = await axios.post<SubmitAiQuestionResponse>(`${API_URL}/api/qa/query`, payload)
+  const response = await axios.post<SubmitAiQuestionResponse>(`${API_URL}/api/qa/semantic-query`, payload)
   return response.data
 }
 
@@ -32,11 +32,26 @@ export async function fetchAiChatMessages(patientId: string) {
 
   return response.data.map((msg) => {
     const [queryLine, answerLine] = msg.fullTranscript.split('\nAI:')
+    const rawAnswer = answerLine?.trim() ?? ''
+    let parsedAnswer = rawAnswer
+    let parsedThought = ''
+
+    try {
+      const match = rawAnswer.match(/```json\s*([\s\S]+?)\s*```/)
+      if (match && match[1]) {
+        const json = JSON.parse(match[1])
+        parsedAnswer = json.answer ?? rawAnswer
+        parsedThought = json.thought ?? ''
+      }
+    } catch (err) {
+      console.error('[PARSE ERROR FROM HISTORY]', err)
+    }
+
     return {
       id: msg.id,
       query: queryLine.replace('Doctor:', '').trim(),
-      thought: '',
-      answer: answerLine?.trim() ?? '',
+      answer: parsedAnswer,
+      thought: parsedThought,
       createdAt: msg.timestamp,
     }
   })

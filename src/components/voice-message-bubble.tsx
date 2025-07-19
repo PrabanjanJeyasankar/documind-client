@@ -27,32 +27,32 @@ export const VoiceMessageBubble: FC<VoiceMessageBubbleProps> = ({ rec, onRetry }
 
     return (
       <div className='flex items-center space-x-2'>
-        {/* Attention icon */}
-        <div className='w-4 h-4 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold'>
+        <div className='w-4 h-4 flex items-center justify-center rounded-full bg-red-600 text-muted text-[10px] font-bold opacity-100'>
           !
         </div>
-        {/* Retry button */}
-        <button
-          onClick={() => onRetry(rec)}
-          className='flex items-center gap-1 text-red-500 border border-red-500 rounded-full px-2 py-0.5 text-xs font-sans hover:bg-red-50 transition'>
-          <RotateCcw className='w-3 h-3' />
-          Retry
-        </button>
+        {rec.errorCode !== 'no_speech_detected' && (
+          <button
+            onClick={() => onRetry(rec)}
+            className='flex items-center gap-1 text-red-500 border border-red-500 rounded-full px-2 py-0.5 text-xs font-sans hover:bg-red-50 transition'>
+            <RotateCcw className='w-3 h-3' />
+            Retry
+          </button>
+        )}
       </div>
     )
   }
 
   return (
     <div className='flex justify-end px-4 mt-4'>
-      <div className='relative max-w-[80%]'>
+      <div className='relative w-full max-w-[300px] min-w-[220px]'>
         <div className='bg-black text-white font-sans p-3 pb-6 rounded-2xl rounded-tr-none shadow-lg relative'>
           {/* tail */}
           <div className='absolute bg-black w-3 h-3 rotate-45 bottom-0 right-2' />
           {/* waveform */}
           <AudioBubble src={rec.url} duration={rec.duration} />
           {/* timestamp + status */}
-          <div className='absolute bottom-2 right-3 flex items-center space-x-2 text-[10px] font-mono opacity-75'>
-            <span>{timeString}</span>
+          <div className='absolute bottom-2 right-3 flex items-center space-x-2 text-[10px] font-mono'>
+            <span className='opacity-75'>{timeString}</span>
             {renderStatus()}
           </div>
         </div>

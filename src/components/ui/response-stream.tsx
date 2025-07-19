@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import { cn } from "@/lib/utils"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import { cn } from '@/lib/utils'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-export type Mode = "typewriter" | "fade"
+export type Mode = 'typewriter' | 'fade' | 'static'
 
 export type UseTextStreamOptions = {
   textStream: string | AsyncIterable<string>
@@ -31,18 +31,16 @@ export type UseTextStreamResult = {
 function useTextStream({
   textStream,
   speed = 20,
-  mode = "typewriter",
+  mode = 'typewriter',
   onComplete,
   fadeDuration,
   segmentDelay,
   characterChunkSize,
   onError,
 }: UseTextStreamOptions): UseTextStreamResult {
-  const [displayedText, setDisplayedText] = useState("")
+  const [displayedText, setDisplayedText] = useState('')
   const [isComplete, setIsComplete] = useState(false)
-  const [segments, setSegments] = useState<{ text: string; index: number }[]>(
-    []
-  )
+  const [segments, setSegments] = useState<{ text: string; index: number }[]>([])
 
   const speedRef = useRef(speed)
   const modeRef = useRef(mode)
@@ -68,16 +66,16 @@ function useTextStream({
   }, [onComplete])
 
   const getChunkSize = useCallback(() => {
-    if (typeof characterChunkSizeRef.current === "number") {
+    if (typeof characterChunkSizeRef.current === 'number') {
       return Math.max(1, characterChunkSizeRef.current)
     }
 
     const normalizedSpeed = Math.min(100, Math.max(1, speedRef.current))
 
-    if (modeRef.current === "typewriter") {
+    if (modeRef.current === 'typewriter') {
       if (normalizedSpeed < 25) return 1
       return Math.max(1, Math.round((normalizedSpeed - 25) / 10))
-    } else if (modeRef.current === "fade") {
+    } else if (modeRef.current === 'fade') {
       return 1
     }
 
@@ -85,7 +83,7 @@ function useTextStream({
   }, [])
 
   const getProcessingDelay = useCallback(() => {
-    if (typeof segmentDelayRef.current === "number") {
+    if (typeof segmentDelayRef.current === 'number') {
       return Math.max(0, segmentDelayRef.current)
     }
 
@@ -94,34 +92,30 @@ function useTextStream({
   }, [])
 
   const getFadeDuration = useCallback(() => {
-    if (typeof fadeDurationRef.current === "number")
-      return Math.max(10, fadeDurationRef.current)
+    if (typeof fadeDurationRef.current === 'number') return Math.max(10, fadeDurationRef.current)
 
     const normalizedSpeed = Math.min(100, Math.max(1, speedRef.current))
     return Math.round(1000 / Math.sqrt(normalizedSpeed))
   }, [])
 
   const getSegmentDelay = useCallback(() => {
-    if (typeof segmentDelayRef.current === "number")
-      return Math.max(0, segmentDelayRef.current)
+    if (typeof segmentDelayRef.current === 'number') return Math.max(0, segmentDelayRef.current)
 
     const normalizedSpeed = Math.min(100, Math.max(1, speedRef.current))
     return Math.max(1, Math.round(100 / Math.sqrt(normalizedSpeed)))
   }, [])
 
   const updateSegments = useCallback((text: string) => {
-    if (modeRef.current === "fade") {
+    if (modeRef.current === 'fade') {
       try {
         const segmenter = new Intl.Segmenter(navigator.language, {
-          granularity: "word",
+          granularity: 'word',
         })
         const segmentIterator = segmenter.segment(text)
-        const newSegments = Array.from(segmentIterator).map(
-          (segment, index) => ({
-            text: segment.segment,
-            index,
-          })
-        )
+        const newSegments = Array.from(segmentIterator).map((segment, index) => ({
+          text: segment.segment,
+          index,
+        }))
         setSegments(newSegments)
       } catch (error) {
         const newSegments = text
@@ -147,7 +141,7 @@ function useTextStream({
 
   const reset = useCallback(() => {
     currentIndexRef.current = 0
-    setDisplayedText("")
+    setDisplayedText('')
     setSegments([])
     setIsComplete(false)
     completedRef.current = false
@@ -176,14 +170,11 @@ function useTextStream({
         }
 
         const chunkSize = getChunkSize()
-        const endIndex = Math.min(
-          currentIndexRef.current + chunkSize,
-          text.length
-        )
+        const endIndex = Math.min(currentIndexRef.current + chunkSize, text.length)
         const newDisplayedText = text.slice(0, endIndex)
 
         setDisplayedText(newDisplayedText)
-        if (modeRef.current === "fade") {
+        if (modeRef.current === 'fade') {
           updateSegments(newDisplayedText)
         }
 
@@ -206,7 +197,7 @@ function useTextStream({
       const controller = new AbortController()
       streamRef.current = controller
 
-      let displayed = ""
+      let displayed = ''
 
       try {
         for await (const chunk of stream) {
@@ -219,7 +210,7 @@ function useTextStream({
 
         markComplete()
       } catch (error) {
-        console.error("Error processing text stream:", error)
+        console.error('Error processing text stream:', error)
         markComplete()
         onError?.(error)
       }
@@ -230,7 +221,7 @@ function useTextStream({
   const startStreaming = useCallback(() => {
     reset()
 
-    if (typeof textStream === "string") {
+    if (typeof textStream === 'string') {
       processStringTypewriter(textStream)
     } else if (textStream) {
       processAsyncIterable(textStream)
@@ -245,7 +236,7 @@ function useTextStream({
   }, [])
 
   const resume = useCallback(() => {
-    if (typeof textStream === "string" && !isComplete) {
+    if (typeof textStream === 'string' && !isComplete) {
       processStringTypewriter(textStream)
     }
   }, [textStream, isComplete, processStringTypewriter])
@@ -290,24 +281,18 @@ export type ResponseStreamProps = {
 
 function ResponseStream({
   textStream,
-  mode = "typewriter",
+  mode = 'typewriter',
   speed = 20,
-  className = "",
+  className = '',
   onComplete,
-  as = "div",
+  as = 'div',
   fadeDuration,
   segmentDelay,
   characterChunkSize,
 }: ResponseStreamProps) {
   const animationEndRef = useRef<(() => void) | null>(null)
 
-  const {
-    displayedText,
-    isComplete,
-    segments,
-    getFadeDuration,
-    getSegmentDelay,
-  } = useTextStream({
+  const { displayedText, isComplete, segments, getFadeDuration, getSegmentDelay } = useTextStream({
     textStream,
     speed,
     mode,
@@ -347,14 +332,14 @@ function ResponseStream({
 
   const renderContent = () => {
     switch (mode) {
-      case "typewriter":
+      case 'typewriter':
         return <>{displayedText}</>
 
-      case "fade":
+      case 'fade':
         return (
           <>
             <style>{fadeStyle}</style>
-            <div className="relative">
+            <div className='relative'>
               {segments.map((segment, idx) => {
                 const isWhitespace = /^\s+$/.test(segment.text)
                 const isLastSegment = idx === segments.length - 1
@@ -362,17 +347,11 @@ function ResponseStream({
                 return (
                   <span
                     key={`${segment.text}-${idx}`}
-                    className={cn(
-                      "fade-segment",
-                      isWhitespace && "fade-segment-space"
-                    )}
+                    className={cn('fade-segment', isWhitespace && 'fade-segment-space')}
                     style={{
                       animationDelay: `${idx * getSegmentDelay()}ms`,
                     }}
-                    onAnimationEnd={
-                      isLastSegment ? handleLastSegmentAnimationEnd : undefined
-                    }
-                  >
+                    onAnimationEnd={isLastSegment ? handleLastSegmentAnimationEnd : undefined}>
                     {segment.text}
                   </span>
                 )
@@ -380,6 +359,9 @@ function ResponseStream({
             </div>
           </>
         )
+
+      case 'static':
+        return <>{typeof textStream === 'string' ? textStream : ''}</>
 
       default:
         return <>{displayedText}</>
