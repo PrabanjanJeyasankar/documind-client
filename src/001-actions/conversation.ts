@@ -69,7 +69,7 @@ export async function sendVoiceRecording(
   form.append('timestamp', timestamp)
   form.append('duration', duration.toString())
 
-  const response = await fetch(`${API_URL}/api/conversation/`, {
+  const response = await fetch(`${API_URL}/api/conversation/gemini`, {
     method: 'POST',
     body: form,
   })
