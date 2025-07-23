@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// smooth-tab.tsx
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
@@ -50,8 +49,8 @@ export default function SmoothTab({ className, children }: SmoothTabProps) {
         role='tablist'
         aria-label='Dashboard tabs'
         className={cn(
-          'flex items-center gap-1 p-1 mb-2 relative',
-          'bg-background w-full max-w-2xl',
+          'flex items-center gap-1 p-0.5 mb-2 relative',
+          'bg-muted w-full max-w-2xl',
           'border rounded-lg',
           'transition-all duration-200'
         )}>
@@ -78,7 +77,6 @@ export default function SmoothTab({ className, children }: SmoothTabProps) {
         </div>
       </div>
       <div className='flex-1 relative'>
-        {/* Show 'content' if defined, otherwise render child routes via children */}
         {selectedItem.content ? (
           <TabContent selectedItem={selectedItem} direction={0} animationConfig={ANIMATION_CONFIG} />
         ) : (

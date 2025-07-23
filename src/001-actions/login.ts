@@ -20,6 +20,7 @@ export async function loginDoctor(_: unknown, formData: FormData): Promise<Login
       { email, password },
       { headers: { 'Content-Type': 'application/json' } }
     )
+    console.log(response.data)
     return { doctor: response.data }
   } catch (error) {
     let message = 'Server unreachable. Try again later.'

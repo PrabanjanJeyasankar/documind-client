@@ -109,36 +109,37 @@ export function usePatientVoiceRecordings(patientId: string) {
   })
 }
 
+interface SendVoiceRecordingVariables {
+  audio: Blob
+  id: string
+  timestamp: string
+  duration: number
+  doctorId: string
+}
+
 export function useSendVoiceRecording(patientId: string) {
   const client = useQueryClient()
 
-  return useMutation<
-    VoiceRecording,
-    Error,
-    {
-      audio: Blob
-      id: string
-      timestamp: string
-      duration: number
-      doctorId: string
-    },
-    OptimisticVoiceContext
-  >({
-    mutationFn: (vars) => sendVoiceRecording(patientId, vars.doctorId, vars.audio, vars.timestamp),
+  return useMutation<VoiceRecording, Error, SendVoiceRecordingVariables, OptimisticVoiceContext>({
+    mutationFn: ({ audio, doctorId, timestamp }) => sendVoiceRecording(patientId, doctorId, audio, timestamp),
 
     onMutate: async ({ id, audio, timestamp, duration }) => {
       await client.cancelQueries({ queryKey: ['patientVoice', patientId] })
+
       const previous = client.getQueryData<VoiceRecording[]>(['patientVoice', patientId]) ?? []
+
+      const existing = previous.find((r) => r.id === id)
+
       const blobUrl = URL.createObjectURL(audio)
-      const existingIndex = previous.findIndex((r) => r.id === id)
 
       let newList: VoiceRecording[]
-      if (existingIndex !== -1) {
+      if (existing) {
         newList = previous.map((r) =>
           r.id === id
             ? {
                 ...r,
                 status: 'pending',
+                errorCode: undefined,
                 file: audio,
                 url: r.url || blobUrl,
                 timestamp,
@@ -159,27 +160,28 @@ export function useSendVoiceRecording(patientId: string) {
       }
 
       client.setQueryData<VoiceRecording[]>(['patientVoice', patientId], newList)
+
       return { previous, optimisticId: id }
     },
 
-    onError: (_err: Error, _vars, context?: OptimisticVoiceContext) => {
-      if (context) {
-        const all = client.getQueryData<VoiceRecording[]>(['patientVoice', patientId]) ?? []
-        client.setQueryData<VoiceRecording[]>(
-          ['patientVoice', patientId],
-          all.map((r) => (r.id === context.optimisticId ? { ...r, status: 'failed' } : r))
-        )
-      }
+    onError: (_error, _vars, context) => {
+      if (!context) return
+
+      client.setQueryData<VoiceRecording[]>(['patientVoice', patientId], (current = []) =>
+        current.map((r) => (r.id === context.optimisticId ? { ...r, status: 'failed' } : r))
+      )
     },
 
-    onSuccess: (saved, _vars, context?: OptimisticVoiceContext) => {
-      if (context) {
-        const all = client.getQueryData<VoiceRecording[]>(['patientVoice', patientId]) ?? []
-        client.setQueryData<VoiceRecording[]>(
-          ['patientVoice', patientId],
-          [...all.filter((r) => r.id !== context.optimisticId), { ...saved, status: 'sent' }]
+    onSuccess: (saved, _vars, context) => {
+      if (!context) return
+
+      client.setQueryData<VoiceRecording[]>(['patientVoice', patientId], (current = []) =>
+        current.map((r) =>
+          r.id === context.optimisticId
+            ? { ...saved, id: context.optimisticId, status: 'sent' } // preserve optimistic ID
+            : r
         )
-      }
+      )
     },
   })
 }

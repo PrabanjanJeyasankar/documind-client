@@ -201,7 +201,9 @@ function useTextStream({
 
       try {
         for await (const chunk of stream) {
-          if (controller.signal.aborted) return
+          if (controller.signal.aborted) {
+            return
+          }
 
           displayed += chunk
           setDisplayedText(displayed)
@@ -210,6 +212,11 @@ function useTextStream({
 
         markComplete()
       } catch (error) {
+        if (controller.signal.aborted) {
+          // Ignore aborted fetch/stream
+          return
+        }
+
         console.error('Error processing text stream:', error)
         markComplete()
         onError?.(error)

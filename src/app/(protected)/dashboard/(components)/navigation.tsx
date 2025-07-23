@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Stethoscope, LogOut } from 'lucide-react'
+import Link from 'next/link'
+import { Stethoscope, LogOut, User } from 'lucide-react'
 import { JSX } from 'react/jsx-runtime'
 import { useAuthStore } from '@/store/auth-store'
 
@@ -56,11 +57,16 @@ export function DashboardNav(): JSX.Element | null {
           <Avatar letter={firstLetter} />
         </button>
 
-        {/* Dropdown menu */}
         <div
-          className={`absolute right-0 mt-2 w-40  bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 py-1 font-sans origin-top-right transform transition-all duration-200 ease-out
+          className={`absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 py-1 font-sans origin-top-right transform transition-all duration-200 ease-out
             ${dropdownOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
           style={{ transformOrigin: 'top right' }}>
+          <Link
+            href='/profile'
+            className='flex items-center gap-2 w-full px-4 py-2 text-sm text-foreground hover:bg-muted/10 dark:hover:bg-gray-700'>
+            <User className='w-4 h-4' />
+            Profile
+          </Link>
           <button
             type='button'
             onClick={() => {

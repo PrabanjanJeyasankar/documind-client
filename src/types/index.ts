@@ -43,7 +43,11 @@ export interface Doctor {
   id: string
   name: string
   email: string
+  passwordHash: string
   role?: string
+  voiceEmbedding: number[]
+  voiceEmbeddingReady: boolean
+  voiceUpdatedAt?: string
 }
 
 export type RegisterFieldErrors = {

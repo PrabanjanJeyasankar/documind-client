@@ -18,6 +18,13 @@ import { groupVoiceByDate } from '@/utils/voice-conversation'
 import { formatDateHeader } from '@/utils/chat-conversation'
 
 import type { VoiceRecording } from '@/types'
+import { useAuthStore } from '@/store/auth-store'
+import dynamic from 'next/dynamic'
+
+const VoiceSampleStepperBox = dynamic(
+  () => import('@/components/voice-sample-modal/voice-sample-stepper-box').then((mod) => mod.VoiceSampleStepperBox),
+  { ssr: false }
+)
 
 interface VoicePanelProps {
   patientId: string
@@ -41,8 +48,18 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
   const [atBottom, setAtBottom] = useState(true)
   const [isScrolledUp, setIsScrolledUp] = useState(false)
 
+  const doctor = useAuthStore((s) => s.doctor)
+  const hasVoiceEmbedding = !!doctor?.voiceEmbeddingReady
+  const [showSampleModal, setShowSampleModal] = useState(false)
+
   const grouped = groupVoiceByDate(storeRecs)
   const dates = Object.keys(grouped).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+
+  useEffect(() => {
+    if (!hasVoiceEmbedding) {
+      setShowSampleModal(true)
+    }
+  }, [hasVoiceEmbedding])
 
   useEffect(() => {
     if (!serverRecs) return
@@ -131,9 +148,19 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
   }
 
   const retry = (rec: VoiceRecording) => {
-    setStore(patientId, (prev) => (prev ?? []).map((r) => (r.id === rec.id ? { ...r, status: 'pending' } : r)))
-
     if (!rec.file) return
+
+    setStore(patientId, (prev) =>
+      (prev ?? []).map((r) =>
+        r.id === rec.id
+          ? {
+              ...r,
+              status: 'pending',
+              errorCode: undefined,
+            }
+          : r
+      )
+    )
 
     sendMut.mutate(
       {
@@ -259,6 +286,15 @@ export const VoicePanel: FC<VoicePanelProps> = ({ patientId, doctorId }) => {
       <div className='flex justify-center pb-4'>
         <AudioRecordUploadInput onRecordingComplete={handleRecordingComplete} showTopGradient={isScrolledUp} />
       </div>
+
+      {showSampleModal && doctor?.id && (
+        <VoiceSampleStepperBox
+          doctorId={doctor.id}
+          isOpen={showSampleModal}
+          onClose={() => setShowSampleModal(false)}
+          onUploadSuccess={() => setShowSampleModal(false)}
+        />
+      )}
     </div>
   )
 }
