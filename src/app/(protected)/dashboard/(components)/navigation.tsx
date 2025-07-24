@@ -40,7 +40,10 @@ export function DashboardNav(): JSX.Element | null {
   return (
     <nav className='w-full flex items-center justify-between px-6 py-2 border-b bg-sidebar-accent font-sans'>
       <div className='flex items-center gap-3'>
-        <Stethoscope className='text-primary bg-background' />
+        <div className='p-3 rounded-full bg-primary'>
+          <Stethoscope className='text-muted' size={20} />
+        </div>
+
         <div>
           <div className='font-bold text-xl font-sans'>DocuMind</div>
           <div className='text-muted-foreground text-sm font-sans'>Intelligent Medical Assistant</div>

@@ -163,3 +163,15 @@ export interface LocalAiMessage extends AiChatMessage {
   showCot: boolean
   isFromHistory?: boolean
 }
+
+export interface DisplayRecording {
+  id: string
+  url: string
+  timestamp: string
+  duration?: number
+  status: VoiceRecordingStatus | 'pending' | 'failed'
+  fullTranscript?: string
+  transcriptSegments?: TranscriptSegment[]
+  file?: Blob
+  errorCode?: string
+}
