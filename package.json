@@ -38,8 +38,10 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.60.0",
+    "react-resizable-panels": "^3.0.3",
     "sonner": "^2.0.6",
     "tailwind-merge": "^3.3.1",
+    "tailwind-scrollbar": "^4.0.2",
     "wavesurfer.js": "^7.10.0",
     "zustand": "^5.0.6"
   },

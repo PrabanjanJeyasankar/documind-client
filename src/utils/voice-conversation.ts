@@ -1,7 +1,5 @@
-import type { VoiceRecording } from '@/types'
-
-export function groupVoiceByDate(recordings: VoiceRecording[]): Record<string, VoiceRecording[]> {
-  return recordings.reduce<Record<string, VoiceRecording[]>>((acc, rec) => {
+export function groupVoiceByDate<T extends { timestamp: string }>(recordings: T[]): Record<string, T[]> {
+  return recordings.reduce<Record<string, T[]>>((acc, rec) => {
     const date = new Date(rec.timestamp).toDateString()
     if (!acc[date]) acc[date] = []
     acc[date].push(rec)

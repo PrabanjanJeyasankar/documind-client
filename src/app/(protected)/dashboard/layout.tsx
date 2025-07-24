@@ -1,4 +1,3 @@
-// src/app/(protected)/dashboard/layout.tsx
 'use client'
 
 import { ReactNode } from 'react'
@@ -19,7 +18,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className='bg-background font-sans min-h-screen'>
       <DashboardNav />
 
-      <div className='m-4'>{isChatPage ? <>{children}</> : <SmoothTab>{children}</SmoothTab>}</div>
+      <div className='m-2 rounded-xl'>{isChatPage ? <>{children}</> : <SmoothTab>{children}</SmoothTab>}</div>
     </div>
   )
 }

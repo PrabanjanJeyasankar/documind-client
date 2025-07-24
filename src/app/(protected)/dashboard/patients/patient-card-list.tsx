@@ -40,7 +40,7 @@ export function PatientCardsList({ patients }: PatientCardsListProps) {
   return (
     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
       {patients.map((patient) => (
-        <div key={patient.id} className='bg-card border rounded-xl p-5 flex flex-col gap-2'>
+        <div key={patient.id} className='bg-muted border border-muted-foreground/10 rounded-xl p-5 flex flex-col gap-2'>
           <div className='flex items-center gap-3 mb-2'>
             <User className='w-8 h-8 text-[var(--color-primary)]' />
             <div>
@@ -57,7 +57,7 @@ export function PatientCardsList({ patients }: PatientCardsListProps) {
           </div>
           <div className='flex-1'></div>
           <Button
-            variant='outline'
+            variant='default'
             className='w-full mt-2'
             onClick={() => router.push(`/dashboard/patients/${patient.id}/chat`)}>
             <MessageSquare className='w-4 h-4 mr-1' />
