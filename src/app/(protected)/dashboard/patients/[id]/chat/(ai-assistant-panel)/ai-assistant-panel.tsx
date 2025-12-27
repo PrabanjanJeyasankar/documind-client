@@ -1,15 +1,29 @@
 'use client'
 
-import React, { FC, useEffect, useRef, useState, UIEvent } from 'react'
 import { useAiChatHistory, useSubmitAiQuestion } from '@/002-hooks/use-ai-chat'
-import { PromptInput, PromptInputTextarea, PromptInputActions, PromptInputAction } from '@/components/ui/prompt-input'
 import { Button } from '@/components/ui/button'
-import { ArrowDown, ArrowUp, Loader } from 'lucide-react'
+import {
+  PromptInput,
+  PromptInputAction,
+  PromptInputActions,
+  PromptInputTextarea,
+} from '@/components/ui/prompt-input'
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from '@/components/ui/reasoning'
 import { ResponseStream } from '@/components/ui/response-stream'
-import { Reasoning, ReasoningTrigger, ReasoningContent } from '@/components/ui/reasoning'
-import { groupMessagesByDate, formatDateHeader, formatTime } from '@/utils/chat-conversation'
-import { LocalAiMessage } from '@/types'
 import { cn } from '@/lib/utils'
+import { LocalAiMessage } from '@/types'
+import {
+  formatDateHeader,
+  formatTime,
+  groupMessagesByDate,
+} from '@/utils/chat-conversation'
+import { parseAiResponse } from '@/utils/ai-response'
+import { ArrowDown, ArrowUp, Loader } from 'lucide-react'
+import { FC, UIEvent, useEffect, useRef, useState } from 'react'
 import HistoryLoadingSkeleton from './history-loading-skeleton'
 import NoInteractionCard from './no-interaction-card'
 
@@ -18,8 +32,12 @@ interface AiAssitantPanelProps {
   doctorId: string
 }
 
-export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId }) => {
-  const { data: remoteMsgs, isLoading: isHistoryLoading } = useAiChatHistory(patientId)
+export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({
+  patientId,
+  doctorId,
+}) => {
+  const { data: remoteMsgs, isLoading: isHistoryLoading } =
+    useAiChatHistory(patientId)
   const sendMutation = useSubmitAiQuestion()
   const [localMsgs, setLocalMsgs] = useState<LocalAiMessage[]>([])
   const hasActivePending = localMsgs.some((msg) => msg.status === 'pending')
@@ -41,13 +59,20 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
 
     setLocalMsgs((prev) => {
       const remoteIds = new Set(remoteWithMeta.map((m) => m.id))
-      const prevIds = new Set(prev.filter((m) => m.status === 'sent').map((m) => m.id))
+      const prevIds = new Set(
+        prev.filter((m) => m.status === 'sent').map((m) => m.id)
+      )
 
-      if (remoteIds.size === prevIds.size && [...remoteIds].every((id) => prevIds.has(id))) {
+      if (
+        remoteIds.size === prevIds.size &&
+        [...remoteIds].every((id) => prevIds.has(id))
+      ) {
         return prev
       }
 
-      const pendingOrNew = prev.filter((m) => m.status !== 'sent' || !remoteIds.has(m.id))
+      const pendingOrNew = prev.filter(
+        (m) => m.status !== 'sent' || !remoteIds.has(m.id)
+      )
 
       return [...remoteWithMeta, ...pendingOrNew]
     })
@@ -88,22 +113,8 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
       { query: prompt, doctorId, patientId },
       {
         onSuccess: (res) => {
-          console.log('[AI RAW RESPONSE]', res)
-          let parsedThought = res.thought
-          let parsedAnswer = res.answer
-
-          try {
-            const match = res.answer.match(/```json\s*([\s\S]+?)\s*```/)
-
-            if (match && match[1]) {
-              const json = JSON.parse(match[1])
-              parsedThought = json.thought ?? ''
-              parsedAnswer = json.answer ?? res.answer
-              console.log('[AI PARSED JSON]', { parsedThought, parsedAnswer })
-            }
-          } catch (err) {
-            console.error('[AI RESPONSE PARSE ERROR]', err)
-          }
+          const { thought: parsedThought, answer: parsedAnswer } =
+            parseAiResponse(res)
 
           setLocalMsgs((prev) =>
             prev.map((m) =>
@@ -121,7 +132,11 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
           )
         },
         onError: () => {
-          setLocalMsgs((prev) => prev.map((m) => (m.localId === localId ? { ...m, status: 'failed' } : m)))
+          setLocalMsgs((prev) =>
+            prev.map((m) =>
+              m.localId === localId ? { ...m, status: 'failed' } : m
+            )
+          )
         },
       }
     )
@@ -129,16 +144,22 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
 
   const allMsgs: LocalAiMessage[] = localMsgs
 
-  const grouped = groupMessagesByDate(allMsgs.map((m) => ({ ...m, timestamp: m.createdAt })))
-  const dates = Object.keys(grouped).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+  const grouped = groupMessagesByDate(
+    allMsgs.map((m) => ({ ...m, timestamp: m.createdAt }))
+  )
+  const dates = Object.keys(grouped).sort(
+    (a, b) => new Date(a).getTime() - new Date(b).getTime()
+  )
 
   return (
     <div className='flex flex-col h-full min-h-0 bg-background rounded-lg border font-sans'>
       <div className='bg-muted text-muted-foreground px-4 py-2 text-xs border-b'>
         AI Assistant — will answer your medical queries.
       </div>
-
-      <div ref={containerRef} onScroll={handleScroll} className='flex-1 overflow-y-auto p-4'>
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        className='flex-1 overflow-y-auto p-4'>
         {isHistoryLoading && allMsgs.length === 0 ? (
           <HistoryLoadingSkeleton />
         ) : allMsgs.length === 0 ? (
@@ -147,7 +168,9 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
           dates.map((dateStr) => (
             <div key={dateStr}>
               <div className='flex justify-center mb-2'>
-                <span className='text-xs font-mono bg-muted px-3 py-1 rounded-xl'>{formatDateHeader(dateStr)}</span>
+                <span className='text-xs font-mono bg-muted px-3 py-1 rounded-xl'>
+                  {formatDateHeader(dateStr)}
+                </span>
               </div>
 
               {grouped[dateStr].map((msg, i) => {
@@ -166,7 +189,10 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
                         className={cn(
                           'max-w-xs rounded-2xl rounded-tl-none text-sm border-none mt-2',
                           msg.answer !== 'pending' && 'bg-muted',
-                          msg.answer === 'pending' || (msg.thought && msg.answer) ? 'p-4' : 'p-0'
+                          msg.answer === 'pending' ||
+                            (msg.thought && msg.answer)
+                            ? 'p-4'
+                            : 'p-0'
                         )}>
                         {/* {true ? ( */}
                         {msg.status === 'pending' ? (
@@ -181,11 +207,17 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
                                   open={msg.showCot}
                                   onOpenChange={(open) =>
                                     setLocalMsgs((prev) =>
-                                      prev.map((m) => (m.localId === msg.localId ? { ...m, showCot: open } : m))
+                                      prev.map((m) =>
+                                        m.localId === msg.localId
+                                          ? { ...m, showCot: open }
+                                          : m
+                                      )
                                     )
                                   }
                                   isStreaming={!msg.isFromHistory}>
-                                  <ReasoningTrigger>Show reasoning</ReasoningTrigger>
+                                  <ReasoningTrigger>
+                                    Show reasoning
+                                  </ReasoningTrigger>
                                   <ReasoningContent className='ml-2 border-l px-2 py-1 border-border'>
                                     {msg.thought}
                                   </ReasoningContent>
@@ -196,7 +228,9 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
                             <div className={cn(msg.showCot && 'mt-4')}>
                               <ResponseStream
                                 textStream={msg.answer}
-                                mode={msg.isFromHistory ? 'static' : 'typewriter'}
+                                mode={
+                                  msg.isFromHistory ? 'static' : 'typewriter'
+                                }
                                 speed={20}
                               />
                             </div>
@@ -213,7 +247,10 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
                     )}
 
                     {/* autoscroll anchor */}
-                    {i === grouped[dateStr].length - 1 && dateStr === dates[dates.length - 1] && <div ref={endRef} />}
+                    {i === grouped[dateStr].length - 1 &&
+                      dateStr === dates[dates.length - 1] && (
+                        <div ref={endRef} />
+                      )}
                   </div>
                 )
               })}
@@ -225,7 +262,9 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
           <Button
             type='button'
             variant='secondary'
-            onClick={() => endRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() =>
+              endRef.current?.scrollIntoView({ behavior: 'smooth' })
+            }
             className='absolute left-0 right-0 mx-auto bottom-32 w-10 h-10 rounded-full'>
             <ArrowDown className='w-5 h-5' />
           </Button>
@@ -247,8 +286,14 @@ export const AiAssitantPanel: FC<AiAssitantPanelProps> = ({ patientId, doctorId 
                 type='button'
                 onClick={send}
                 className='p-2 rounded-full bg-primary text-primary-foreground'
-                disabled={!input.trim() || hasActivePending || sendMutation.isPending}>
-                {sendMutation.isPending ? <Loader className='w-4 h-4 animate-spin' /> : <ArrowUp className='w-5 h-5' />}
+                disabled={
+                  !input.trim() || hasActivePending || sendMutation.isPending
+                }>
+                {sendMutation.isPending ? (
+                  <Loader className='w-4 h-4 animate-spin' />
+                ) : (
+                  <ArrowUp className='w-5 h-5' />
+                )}
               </button>
             </PromptInputAction>
           </PromptInputActions>

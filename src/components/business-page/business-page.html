@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>DocuMind - Doctor Intelligence Platform</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#4F86F7', // Bright trustworthy blue
+              'background-light': '#F8FAFC', // Very light slate/blue
+              'background-dark': '#0F172A', // Slate 900
+              'surface-light': '#FFFFFF',
+              'surface-dark': '#1E293B', // Slate 800
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            },
+            borderRadius: {
+              '4xl': '2.5rem',
+              '5xl': '3rem',
+            },
+            boxShadow: {
+              soft: '0 10px 40px -10px rgba(0,0,0,0.08)',
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 20px;
+      }
+      .glass-effect {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 antialiased overflow-x-hidden min-h-screen flex flex-col">
+    <nav
+      class="w-full px-6 py-4 lg:px-12 lg:py-6 flex justify-between items-center relative z-50">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+          <i class="fa-solid fa-stethoscope text-xl"></i>
+        </div>
+        <span
+          class="text-xl font-bold tracking-tight text-slate-900 dark:text-white"
+          >DocuMind</span
+        >
+      </div>
+      <div
+        class="hidden lg:flex items-center bg-white dark:bg-surface-dark px-2 py-1.5 rounded-full shadow-sm border border-slate-100 dark:border-slate-700">
+        <a
+          class="px-6 py-2 rounded-full text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary transition-colors"
+          href="#"
+          >Home</a
+        >
+        <a
+          class="px-6 py-2 rounded-full text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary transition-colors"
+          href="#"
+          >Services</a
+        >
+        <a
+          class="px-6 py-2 rounded-full text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary transition-colors"
+          href="#"
+          >Doctors</a
+        >
+        <div
+          class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white ml-1 cursor-pointer hover:bg-blue-600 transition-colors">
+          <i class="fa-solid fa-bars text-xs"></i>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div
+          class="hidden md:flex items-center bg-slate-200 dark:bg-slate-700 rounded-full p-1 relative">
+          <div
+            class="w-12 h-8 bg-white dark:bg-slate-600 rounded-full shadow-sm absolute left-1"></div>
+          <span
+            class="relative z-10 px-3 text-xs font-bold text-slate-800 dark:text-white cursor-pointer"
+            >EN</span
+          >
+          <button
+            class="relative z-10 w-8 h-8 flex items-center justify-center text-slate-500 hover:text-primary transition-colors"
+            onclick="document.documentElement.classList.toggle('dark')">
+            <i class="fa-solid fa-moon dark:hidden"></i>
+            <i class="fa-solid fa-sun hidden dark:block text-yellow-400"></i>
+          </button>
+        </div>
+        <a
+          class="hidden md:block px-6 py-2.5 rounded-full border border-slate-300 dark:border-slate-600 text-sm font-semibold hover:border-primary hover:text-primary transition-colors"
+          href="#"
+          >Log in</a
+        >
+        <a
+          class="px-6 py-2.5 rounded-full bg-primary text-white text-sm font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-600 transition-colors"
+          href="#"
+          >Register</a
+        >
+      </div>
+    </nav>
+    <main
+      class="w-full max-w-[1440px] mx-auto px-6 lg:px-12 pt-8 pb-20 relative flex-1 flex items-center">
+      <div
+        class="absolute top-20 left-0 w-96 h-96 bg-blue-200/20 dark:bg-blue-900/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+      <div
+        class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-200/20 dark:bg-indigo-900/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div class="lg:col-span-5 flex flex-col gap-8 relative">
+          <div
+            class="absolute -top-10 right-10 text-slate-300 dark:text-slate-600 animate-pulse hidden lg:block">
+            <svg fill="currentColor" height="40" viewBox="0 0 24 24" width="40">
+              <path
+                d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"></path>
+            </svg>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="flex -space-x-4">
+              <img
+                alt="User 1"
+                class="w-12 h-12 rounded-full border-4 border-background-light dark:border-background-dark object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkgFP3tK0qWbg-EV9TFlkJTe4COKLncYz9vYpq4ofNfAXb75C6mw1H3rOTy646mfGXvmvXPoU57nfrBVRIfsX1EHf8mGkMVcVTbtyuJqLRAgBNckepM0T8Yv7xP6bba5QxLtH4Vt-XPRZkI9aCCHuSGh1VmpnGujd1uVT6JOxccabQVdk11s5Zt9eCR0q56v-pDzymfSDwn3eXbNicrIc9CVCvoDThyoRA4K6EiKrZ9qqAzJ_W5hZ1kEQhHs0mRugOvsd8_bLlWH0r" />
+              <img
+                alt="User 2"
+                class="w-12 h-12 rounded-full border-4 border-background-light dark:border-background-dark object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuXnnu63UdrmYn-CE5ql0HxDASPJc8V7YKSAC8UOnv6fWrgxhqKuNYYo331djzTSrfHhlZ7m929Cd5HlDdphuGiKDuzj5qXyR1DrlnzADgD4OT8e8r5mVcvK8mmNtnWgqp9gEkOdcQrQNm1DyduzlKpemThEcmB42KmtEPG4gUyXRSKCYkEDy-HDHDvT4X_wfjrJONwMiGXO_Y32rBarJMsSbGKEbezPh4XLH3Xp6wRd6TsfPWPIfi_x0-wXDmjnbcex3gq6xcirxD" />
+              <img
+                alt="User 3"
+                class="w-12 h-12 rounded-full border-4 border-background-light dark:border-background-dark object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0ObdwuDQw8ryZSaxc1UWBgCMObtE-x-FHp4WDXs1rnXU3GlBN6f6cF6_uxIRVam2geU98XmeoaZgQfGHKoQCoFRnEZDCLds_BHoewPpkkdi5MOvqr32XVdd04b7z8L2GbxKa8T6ULt0464pgmrTzdLONKY8EXf0KimpPPHe9BuCfvoG-_G_BUrysI3TsW64kMR7TiI9AsqNsFyZ2ZrABSY252UT7VlbOV6X_YbU37St2hUcPldRy5xtQfudXfRRNIo-7uAnsE45TY" />
+            </div>
+            <div>
+              <p class="text-3xl font-bold text-slate-900 dark:text-white">
+                24/7
+              </p>
+              <p
+                class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">
+                Doctor-Ready Insights
+              </p>
+            </div>
+          </div>
+          <h1
+            class="text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-slate-900 dark:text-white">
+            The Doctor's AI Brain for
+            <span class="text-primary block relative"
+              >Patient
+              <span
+                class="absolute -right-16 top-1/2 -translate-y-1/2 hidden xl:block opacity-80">
+                <img
+                  alt="Pill Icon"
+                  class="w-16 h-16 object-contain -rotate-12 drop-shadow-lg filter dark:brightness-90"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3fd-UX4-cfadl0xAELCB0z85_qTvLLADpcr_vo8dZVx7tee7mXdWT7msf4iFtuWelMNsvmW_mK9yvyFCWk3ho8GBlQ2eMxwGhYuWJimWIfHMKMR-BmtHu-87HnBU0RfBRpN3qjeA7Cc_BshQLBk85KTwrSSG2ydsqpFjkS9bH2K7mGf9KAg6_u0UAHdru7WHdpge98YGE_yfGtRj6qXeQ2EIYBMpqC7jyAB6CPRJ7kElTMwimXP6pMCLn0tRL9EJr9T2I0LUmUDB4" />
+              </span>
+            </span>
+            History
+          </h1>
+          <p
+            class="text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-xl">
+            Doctors can add text logs, add patient-doctor conversations, and
+            build a living history. DocuMind learns from this data so clinicians
+            can ask smarter questions and improve medications over time.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 pt-4">
+            <button
+              class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-full font-semibold flex items-center justify-center gap-3 shadow-xl hover:scale-105 transition-transform">
+              <i class="fa-solid fa-calendar-check"></i>
+              Record/Text Patient Data
+            </button>
+            <button
+              class="bg-primary text-white px-8 py-4 rounded-full font-semibold flex items-center justify-center gap-3 shadow-xl shadow-blue-500/30 hover:bg-blue-600 transition-colors">
+              <div
+                class="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center">
+                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+              </div>
+              Ask DocuMind
+            </button>
+          </div>
+        </div>
+        <div
+          class="lg:col-span-7 relative h-[600px] lg:h-[700px] w-full mt-12 lg:mt-0">
+          <div
+            class="absolute inset-0 lg:left-12 bg-slate-200 dark:bg-slate-800 rounded-[3rem] overflow-hidden shadow-2xl">
+            <img
+              alt="Senior Doctor with Tablet"
+              class="w-full h-full object-cover object-top opacity-90 hover:scale-105 transition-transform duration-700"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZrOd6c9L2XM5b2CY4u1_IaGby_UqXvn98PWu-XD4aVMKOb6bQX-LzaCZkZ_X34cfS1c8SDPd4vi00I4VUBHiQv8gvCH6fwUrPDP5yN-iA26Om6VC9rQBNoZI7uDKZsTIwgREGJSypDFzcqbru8-MkgHtspQSoQy8Mmw-b3hiFVlBqnAftMSCux8pOyH7laI5DxGetg0WHpb5W5sizxvOlhvpMwyokzr5FufnYrdU7dWAScUdXvryDp_2dN9_fqNIrwWONZV53O2X3" />
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
+          </div>
+          <div
+            class="absolute top-16 left-0 lg:left-0 bg-white dark:bg-surface-dark p-4 rounded-3xl shadow-soft max-w-[240px] border border-slate-100 dark:border-slate-700 hover:-translate-y-1 transition-transform">
+            <div class="flex items-center gap-3 mb-3">
+              <div
+                class="w-12 h-12 rounded-2xl bg-pink-100 flex items-center justify-center text-pink-500">
+                <i class="fa-solid fa-bone text-xl"></i>
+              </div>
+              <div>
+                <p class="font-bold text-slate-800 dark:text-white">
+                  Orthopedics
+                </p>
+                <div class="flex -space-x-2 mt-1">
+                  <img
+                    class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfJg_-sEwLqb5aicis3E7jFyHo8GQyoAAgp48rCt8yNnED1uYyJkTH24qErBaaqrguguwNT77pJhjsrUG6lnQ3za--H0VCn4XOChfbZjloSLL4RfJ4ctsV9p21FmrFhtTHbiKBMT1d3vSRlEmdmuSVjIFv6cqJjEpE8IV-Maqem8aFi_c2LDihYS9DNfUcZ63En1k-IrgO9IGgAtYgPnrPbpgJVXFz3pQ1-HekCOvv_k-TEQb5QP0_-tpmnYNrEkMmYfieeo9y8tBs" />
+                  <img
+                    class="w-6 h-6 rounded-full border-2 border-white dark:border-surface-dark"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd-CKal0puThiLt6-rY6v7ItFbhC0Zp5_b5bowrhViZOvc_8QxFUQbWgMIEOBVhhW1QLh81l8l1MitTD0wi4t2_G5749yu3yKbqRF6ijQ86t6VzgUp1yra1eKEtiTW-2XiMjrDo1LSFKDMVL_oQvW7PzgYms0Z10eRjtlK8cmZ8V4UFlABFTOX2UxcrbYB11pogaqql-LhwDjHOIdsERSSI_0tTTfh0mi3Zu8_VlGJr_F1tlWHSV9fjSDvJ0JqcUEA-xjHBHiPn25G" />
+                  <div
+                    class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 border-2 border-white dark:border-surface-dark flex items-center justify-center text-[8px] font-bold text-slate-500 dark:text-slate-300">
+                    +2
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-slate-500 dark:text-slate-400"
+                ><i class="fa-regular fa-clock mr-1"></i>12 pm - 6 pm</span
+              >
+              <span
+                class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full font-bold"
+                >Mon - Fri</span
+              >
+            </div>
+            <div
+              class="absolute -right-8 top-1/2 -translate-y-1/2 rotate-90 bg-slate-400/30 text-white backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium tracking-wide">
+              Consult
+            </div>
+          </div>
+          <div
+            class="absolute top-8 left-1/3 glass-effect bg-white/80 dark:bg-slate-900/80 px-4 py-2 rounded-full flex items-center gap-2 shadow-lg backdrop-blur-md border border-white/20">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-100"
+              >Lung Disease</span
+            >
+          </div>
+          <div
+            class="absolute top-32 right-10 glass-effect bg-white/80 dark:bg-slate-900/80 px-4 py-2 rounded-full flex items-center gap-2 shadow-lg backdrop-blur-md border border-white/20">
+            <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-100"
+              >Eye Consultation</span
+            >
+          </div>
+          <div
+            class="absolute top-8 right-8 w-12 h-12 bg-slate-900/50 hover:bg-slate-900 dark:bg-black/50 dark:hover:bg-black backdrop-blur-md rounded-full flex items-center justify-center text-white cursor-pointer transition-colors border border-white/10">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </div>
+          <div
+            class="absolute bottom-24 -right-4 lg:right-4 bg-white dark:bg-surface-dark p-4 rounded-[2rem] shadow-2xl w-64 border border-slate-100 dark:border-slate-700 z-10">
+            <div class="rounded-2xl overflow-hidden mb-3 h-32 w-full">
+              <img
+                alt="Patient"
+                class="w-full h-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMAb4mDAdN-OhgPNUxWb-lDrb7V-JSd8hdsE4sYN-zJ28FCpt5TffU8EOWotdZOkwHJTdQi-UqsqqalmwhGVOUPFCzbkPTPqvs4cq6Ij5Q21uN7-MA_kinhS-n8H6KaRUKO4-gcklU2BqzbTp6YlPmVz5eWsc79lH5V2lgXONkiUq33C2hwfJR9ahTBbO2fiHJ6IOyOeK59BrRAt9eYsfFtBlB6_jg-0bhggmupYbzRlRhNwJbCs-AFWrLhNQaK-jud5KcxIyi6JGl" />
+            </div>
+            <p
+              class="text-sm font-bold text-slate-800 dark:text-white leading-tight mb-3">
+              We'll Help You Plan Extraordinary Medical Services.
+            </p>
+            <div
+              class="flex items-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+              <img
+                alt="Doctor"
+                class="w-10 h-10 rounded-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkc45XDgop2Iz8GjTUDbSFYBCaFFLEFrVZ17nOEojS-2cBRFRUDS_7REEiDulot8PIESX0-GBTgCSXdTJaNBBGeq9atmFMAhAnKiZGPfciTBU9zAc1fkVW9LuEEzBq7igkYbEdglIMjYc0KVz7EpxDcW5U-7INodTyAnk60yebfGlztVBOVDYs39HSKnmh8ZvJsIZpLcYzJ7XBvc808GhR1u33mc1ZTr_eKTJBVF3_w20k-OiM5cP7WVqmvyzCDAirC1NugQRtw_ig" />
+              <div>
+                <p class="text-sm font-bold text-slate-900 dark:text-white">
+                  Alex Misba
+                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  Dentalist
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="absolute bottom-10 left-12 right-24 hidden lg:flex gap-3 justify-end items-end z-0">
+            <div
+              class="bg-white dark:bg-surface-dark px-5 py-2.5 rounded-full text-xs font-bold text-slate-800 dark:text-white shadow-lg border border-slate-100 dark:border-slate-700">
+              Cardiologist
+            </div>
+            <div
+              class="bg-black/40 backdrop-blur-md px-5 py-2.5 rounded-full text-xs font-bold text-white border border-white/20">
+              Neurologist
+            </div>
+            <div
+              class="bg-black/40 backdrop-blur-md px-5 py-2.5 rounded-full text-xs font-bold text-white border border-white/20">
+              Dermatologist
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-20 flex gap-1 z-10">
+            <div
+              class="bg-white/30 backdrop-blur-lg px-4 py-8 rounded-t-3xl border-t border-x border-white/20 text-white text-xs font-medium">
+              Pediatrics
+            </div>
+            <div
+              class="bg-slate-800/80 backdrop-blur-lg px-4 py-8 rounded-t-3xl border-t border-x border-white/10 text-white text-xs font-medium">
+              Dental Care
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

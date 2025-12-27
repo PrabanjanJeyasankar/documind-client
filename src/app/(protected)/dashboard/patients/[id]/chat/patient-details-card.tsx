@@ -1,19 +1,32 @@
 'use client'
 
-import React, { FC } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { User, Mail, Phone, Home, Droplet, Info, ChevronLeft, Heart, Tag, Cake } from 'lucide-react'
-import type { Patient } from '@/types'
-import { format, parseISO } from 'date-fns'
 import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
+import { Card, CardContent } from '@/components/ui/card'
+import type { Patient } from '@/types'
 import { calculateAgeFromDate } from '@/utils/chat-conversation'
+import { format, parseISO } from 'date-fns'
+import {
+  Cake,
+  ChevronLeft,
+  Droplet,
+  Heart,
+  Home,
+  Info,
+  Mail,
+  Phone,
+  Tag,
+  User,
+} from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { FC } from 'react'
 
 interface PatientDetailsCardProps {
   patient: Patient
 }
 
-export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => {
+export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({
+  patient,
+}) => {
   const router = useRouter()
 
   const getInitials = (firstName: string, lastName: string) =>
@@ -27,7 +40,9 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
     }
   }
 
-  const age = patient.dateOfBirth ? calculateAgeFromDate(patient.dateOfBirth) : null
+  const age = patient.dateOfBirth
+    ? calculateAgeFromDate(patient.dateOfBirth)
+    : null
 
   return (
     <Card className='shadow-none bg-sidebar-accent border-none font-sans rounded-xl overflow-hidden !pt-2 !pb-0 h-full flex flex-col gap-4'>
@@ -63,72 +78,6 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
 
       <CardContent className='px-6 pb-6 flex-1 overflow-y-auto scroll-thin-hover'>
         <div className='grid grid-cols-1 xs:grid-cols-2 gap-6'>
-          <section className='flex flex-col gap-3'>
-            <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2 mb-1'>
-              <User className='w-4 h-4' />
-              Contact Information
-            </h2>
-
-            {/* DOB */}
-            <div className='flex items-center gap-4 bg-sidebar-accent-foreground/5 rounded-lg p-4 border border-sidebar-accent-foreground/10'>
-              <div className='w-12 h-12 rounded-full bg-sidebar-accent-foreground/10 flex items-center justify-center'>
-                <Cake className='w-6 h-6 text-sidebar-accent-foreground/70' />
-              </div>
-              <div className='flex-1'>
-                <div className='text-xs text-muted-foreground uppercase tracking-wide'>Date of Birth</div>
-                <div className='text-lg font-semibold text-sidebar-accent-foreground'>
-                  {patient.dateOfBirth ? formatDate(patient.dateOfBirth) : 'No DOB'}
-                </div>
-                {age !== null && <div className='text-sm text-muted-foreground'>Age: {age} years old</div>}
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className='flex items-start gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
-              <Mail className='w-5 h-5 text-muted-foreground mt-0.5' />
-              <div className='flex-1 min-w-0'>
-                <div className='text-xs text-muted-foreground uppercase tracking-wide mb-1'>Email</div>
-                {patient.contactEmail ? (
-                  <a
-                    href={`mailto:${patient.contactEmail}`}
-                    className='text-sm text-sidebar-accent-foreground hover:underline block truncate'>
-                    {patient.contactEmail}
-                  </a>
-                ) : (
-                  <div className='text-sm text-muted-foreground'>No email provided</div>
-                )}
-              </div>
-            </div>
-
-            {/* Phone */}
-            <div className='flex items-start gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
-              <Phone className='w-5 h-5 text-muted-foreground mt-0.5' />
-              <div className='flex-1'>
-                <div className='text-xs text-muted-foreground uppercase tracking-wide mb-1'>Phone</div>
-                {patient.contactPhone ? (
-                  <a
-                    href={`tel:${patient.contactPhone}`}
-                    className='text-sm text-sidebar-accent-foreground hover:underline'>
-                    {patient.contactPhone}
-                  </a>
-                ) : (
-                  <div className='text-sm text-muted-foreground'>No phone provided</div>
-                )}
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className='flex items-start gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
-              <Home className='w-5 h-5 text-muted-foreground mt-0.5' />
-              <div className='flex-1'>
-                <div className='text-xs text-muted-foreground uppercase tracking-wide mb-1'>Address</div>
-                <div className='text-sm text-sidebar-accent-foreground'>
-                  {patient.address || <span className='text-muted-foreground'>No address provided</span>}
-                </div>
-              </div>
-            </div>
-          </section>
-
           <section className='flex flex-col gap-3 '>
             <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2 mb-1'>
               <Heart className='w-4 h-4' />
@@ -139,7 +88,9 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
             <div className='flex items-center gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
               <Droplet className='w-5 h-5 text-muted-foreground' />
               <div>
-                <div className='text-xs text-muted-foreground uppercase tracking-wide'>Blood Type</div>
+                <div className='text-xs text-muted-foreground uppercase tracking-wide'>
+                  Blood Type
+                </div>
                 <div className='text-sm text-sidebar-accent-foreground'>
                   {patient.bloodType ? (
                     <span className='font-medium'>{patient.bloodType}</span>
@@ -155,8 +106,12 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
               <div className='flex items-center gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
                 <Info className='w-5 h-5 text-muted-foreground' />
                 <div>
-                  <div className='text-xs text-muted-foreground uppercase tracking-wide'>Gender</div>
-                  <div className='text-sm text-sidebar-accent-foreground font-medium'>{patient.gender}</div>
+                  <div className='text-xs text-muted-foreground uppercase tracking-wide'>
+                    Gender
+                  </div>
+                  <div className='text-sm text-sidebar-accent-foreground font-medium'>
+                    {patient.gender}
+                  </div>
                 </div>
               </div>
             )}
@@ -180,7 +135,9 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
             {/* Conditions */}
             {patient.chronicConditions?.length > 0 && (
               <div className='bg-sidebar-accent-foreground/5 rounded-lg p-4'>
-                <div className='text-sm font-semibold mb-3'>Chronic Conditions</div>
+                <div className='text-sm font-semibold mb-3'>
+                  Chronic Conditions
+                </div>
                 <div className='flex flex-wrap gap-2'>
                   {patient.chronicConditions.map((condition, i) => (
                     <span
@@ -192,6 +149,80 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
                 </div>
               </div>
             )}
+          </section>
+          <section className='flex flex-col gap-3'>
+            <h2 className='text-sm font-medium text-sidebar-accent-foreground/80 flex items-center gap-2 mb-1'>
+              <User className='w-4 h-4' />
+              Contact Information
+            </h2>
+
+            {/* DOB */}
+            <div className='flex items-center gap-4 bg-sidebar-accent-foreground/5 rounded-lg p-4 border border-sidebar-accent-foreground/10'>
+              <Cake className='w-5 h-5 text-muted-foreground mt-0.5' />
+
+              <div className='flex-1'>
+                <div className='text-sm text-sidebar-accent-foreground hover:underline block truncate'>
+                  {patient.dateOfBirth
+                    ? formatDate(patient.dateOfBirth)
+                    : 'No DOB'}
+                </div>
+                {age !== null && (
+                  <div className='text-sm text-muted-foreground'>
+                    Age: {age} years old
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className='flex items-start gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+              <Mail className='w-5 h-5 text-muted-foreground mt-0.5' />
+              <div className='flex-1 min-w-0'>
+                {patient.contactEmail ? (
+                  <a
+                    href={`mailto:${patient.contactEmail}`}
+                    className='text-sm text-sidebar-accent-foreground hover:underline block truncate'>
+                    {patient.contactEmail}
+                  </a>
+                ) : (
+                  <div className='text-sm text-muted-foreground'>
+                    No email provided
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Phone */}
+            <div className='flex items-start gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+              <Phone className='w-5 h-5 text-muted-foreground mt-0.5' />
+              <div className='flex-1'>
+                {patient.contactPhone ? (
+                  <a
+                    href={`tel:${patient.contactPhone}`}
+                    className='text-sm text-sidebar-accent-foreground hover:underline'>
+                    {patient.contactPhone}
+                  </a>
+                ) : (
+                  <div className='text-sm text-muted-foreground'>
+                    No phone provided
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Address */}
+            <div className='flex items-start gap-3 bg-sidebar-accent-foreground/5 rounded-lg p-4'>
+              <Home className='w-5 h-5 text-muted-foreground mt-0.5' />
+              <div className='flex-1'>
+                <div className='text-sm text-sidebar-accent-foreground'>
+                  {patient.address || (
+                    <span className='text-muted-foreground'>
+                      No address provided
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </section>
         </div>
 
@@ -221,7 +252,9 @@ export const PatientDetailsCard: FC<PatientDetailsCardProps> = ({ patient }) => 
             {patient.notes && (
               <div className='bg-sidebar-accent-foreground/5 rounded-lg p-4'>
                 <div className='text-sm font-semibold mb-3'>Notes</div>
-                <div className='text-sm text-muted-foreground'>{patient.notes}</div>
+                <div className='text-sm text-muted-foreground'>
+                  {patient.notes}
+                </div>
               </div>
             )}
           </section>

@@ -1,6 +1,7 @@
 // src/actions/ai-chat.ts
 
 import axios from 'axios'
+import { parseAiResponse } from '@/utils/ai-response'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!
 
@@ -33,25 +34,13 @@ export async function fetchAiChatMessages(patientId: string) {
   return response.data.map((msg) => {
     const [queryLine, answerLine] = msg.fullTranscript.split('\nAI:')
     const rawAnswer = answerLine?.trim() ?? ''
-    let parsedAnswer = rawAnswer
-    let parsedThought = ''
-
-    try {
-      const match = rawAnswer.match(/```json\s*([\s\S]+?)\s*```/)
-      if (match && match[1]) {
-        const json = JSON.parse(match[1])
-        parsedAnswer = json.answer ?? rawAnswer
-        parsedThought = json.thought ?? ''
-      }
-    } catch (err) {
-      console.error('[PARSE ERROR FROM HISTORY]', err)
-    }
+    const parsed = parseAiResponse({ answer: rawAnswer })
 
     return {
       id: msg.id,
       query: queryLine.replace('Doctor:', '').trim(),
-      answer: parsedAnswer,
-      thought: parsedThought,
+      answer: parsed.answer,
+      thought: parsed.thought,
       createdAt: msg.timestamp,
     }
   })
