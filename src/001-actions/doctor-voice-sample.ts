@@ -16,7 +16,7 @@ export async function sendDoctorVoiceSample(doctorId: string, audioFiles: Blob[]
     form.append('files', file) // ← use “files” (plural)
   })
 
-  const { data } = await axios.post<DoctorVoiceSampleResponse>(`${API_URL}/api/doctor/voice-sample`, form, {
+  const { data } = await axios.post<DoctorVoiceSampleResponse>(`${API_URL}/doctor/voice-sample`, form, {
     params: { doctorId },
   })
 

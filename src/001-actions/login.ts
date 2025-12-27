@@ -16,7 +16,7 @@ export async function loginDoctor(_: unknown, formData: FormData): Promise<Login
 
   try {
     const response = await axios.post<Doctor>(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/doctors/login`,
+      `${process.env.NEXT_PUBLIC_API_URL}/doctors/login`,
       { email, password },
       { headers: { 'Content-Type': 'application/json' } }
     )

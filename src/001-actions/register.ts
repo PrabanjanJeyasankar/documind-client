@@ -17,7 +17,7 @@ export async function registerDoctor(_prev: unknown, formData: FormData): Promis
 
   try {
     const response = await axios.post<Doctor>(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/doctors/register`,
+      `${process.env.NEXT_PUBLIC_API_URL}/doctors/register`,
       { name, email, password },
       { headers: { 'Content-Type': 'application/json' } }
     )

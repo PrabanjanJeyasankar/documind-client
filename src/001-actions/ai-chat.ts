@@ -18,7 +18,7 @@ export interface SubmitAiQuestionResponse {
 }
 
 export async function submitAiQuestion(payload: SubmitAiQuestionPayload): Promise<SubmitAiQuestionResponse> {
-  const response = await axios.post<SubmitAiQuestionResponse>(`${API_URL}/api/qa/semantic-query`, payload)
+  const response = await axios.post<SubmitAiQuestionResponse>(`${API_URL}/qa/semantic-query`, payload)
   return response.data
 }
 
@@ -29,7 +29,7 @@ export interface RawAiMessage {
 }
 
 export async function fetchAiChatMessages(patientId: string) {
-  const response = await axios.get<RawAiMessage[]>(`${API_URL}/api/qa/history/${patientId}`)
+  const response = await axios.get<RawAiMessage[]>(`${API_URL}/qa/history/${patientId}`)
 
   return response.data.map((msg) => {
     const [queryLine, answerLine] = msg.fullTranscript.split('\nAI:')

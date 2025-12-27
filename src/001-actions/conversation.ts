@@ -23,7 +23,7 @@ export interface RawVoiceRecording {
 }
 
 export async function fetchVoiceRecordings(patientId: string): Promise<VoiceRecording[]> {
-  const { data } = await axios.get<RawVoiceRecording[]>(`${API}/api/conversation/${patientId}/recordings`)
+  const { data } = await axios.get<RawVoiceRecording[]>(`${API}/conversation/${patientId}/recordings`)
   return data.map((r) => ({
     id: r.id,
     url: r.url.startsWith('http') ? r.url : `${API}${r.url}`,
@@ -50,7 +50,7 @@ export async function sendVoiceRecording(
   form.append('file', audio, 'note.webm')
   form.append('timestamp', timestamp)
 
-  const res = await fetch(`${API}/api/conversation/gemini`, { method: 'POST', body: form })
+  const res = await fetch(`${API}/conversation/gemini`, { method: 'POST', body: form })
   if (!res.ok) throw res
   console.log(res)
 
@@ -59,7 +59,7 @@ export async function sendVoiceRecording(
 }
 
 export async function fetchChatMessages(id: string): Promise<ChatMessage[]> {
-  const { data } = await axios.get<ChatMessage[]>(`${API}/api/conversation/${id}/messages`)
+  const { data } = await axios.get<ChatMessage[]>(`${API}/conversation/${id}/messages`)
   return data
 }
 export async function sendChatMessage(inp: ChatMessageInput): Promise<ChatMessage> {
@@ -69,10 +69,10 @@ export async function sendChatMessage(inp: ChatMessageInput): Promise<ChatMessag
   f.append('inputMode', 'text')
   f.append('conversationType', inp.conversationType)
   f.append('fullTranscript', inp.fullTranscript)
-  const { data } = await axios.post<ChatMessage>(`${API}/api/conversation/`, f)
+  const { data } = await axios.post<ChatMessage>(`${API}/conversation/`, f)
   return data
 }
 export async function fetchAIChat(id: string): Promise<AIMessage[]> {
-  const { data } = await axios.get<AIMessage[]>(`${API}/api/conversation/${id}/ai`)
+  const { data } = await axios.get<AIMessage[]>(`${API}/conversation/${id}/ai`)
   return data
 }
