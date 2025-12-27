@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { QueryProvider } from '@/components/query-provider'
 import { Toaster } from 'sonner'
+import { Analytics } from '@vercel/analytics/next'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <QueryProvider>
           {children}
           <Toaster richColors position='top-right' />
+          <Analytics />
         </QueryProvider>
       </body>
     </html>
